@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<head>
+	<meta charset="utf-8" />
+	<title>Center</title>
+	<meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+	<!-- ================== BEGIN BASE CSS STYLE ================== -->
+	{% include "inc_head_css.html" %}
+	<!-- ================== END BASE CSS STYLE ================== -->
+
+	<!-- ================== BEGIN PAGE LEVEL STYLE ================== -->
+    <link href="{{url_for('static',filename='plugins/isotope/isotope.css')}}" rel="stylesheet" />
+  	<link href="{{url_for('static',filename='plugins/lightbox/css/lightbox.css')}}" rel="stylesheet" />
+	<!-- ================== END PAGE LEVEL STYLE ================== -->
+
+	<!-- ================== BEGIN BASE JS ================== -->
+	{% include "inc_head_js.html" %}
+	<!-- ================== END BASE JS ================== -->
+</head>
+<body>
+	<!-- begin #page-loader -->
+	<div id="page-loader" class="fade in"><span class="spinner"></span></div>
+	<!-- end #page-loader -->
+
+	<!-- begin #page-container -->
+	<div id="page-container" class="fade page-sidebar-minified page-sidebar-fixed page-header-fixed">
+		<!-- begin #header -->
+		{% include "inc_header.html" %}
+		<!-- end #header -->
+
+		<!-- begin #sidebar -->
+		{% include "inc_sidebar.html" %}
+		<!-- end #sidebar -->
+
+		<!-- begin #content -->
+		<div id="content" class="content">
+
+			<!-- begin row -->
+			<div class="row">
+				<!-- begin col-3 -->
+				<div class="col-md-3 col-sm-6">
+					<div class="widget widget-stats bg-green">
+						<div class="stats-icon"><i class="fa fa-desktop"></i></div>
+						<div class="stats-info">
+							<h4>使用统计</h4>
+							<p>xxx</p>
+						</div>
+						<div class="stats-link">
+							<a href="/status/">点击查看 <i class="fa fa-arrow-circle-o-right"></i></a>
+						</div>
+					</div>
+				</div>
+				<!-- end col-3 -->
+				<!-- begin col-3 -->
+				<div class="col-md-3 col-sm-6">
+					<div class="widget widget-stats bg-blue">
+						<div class="stats-icon"><i class="fa fa-users"></i></div>
+						<div class="stats-info">
+							<h4>账号统计</h4>
+							<p>xxx</p>
+						</div>
+						<div class="stats-link">
+							<a href="/account/">点击查看 <i class="fa fa-arrow-circle-o-right"></i></a>
+						</div>
+					</div>
+				</div>
+				<!-- end col-3 -->
+				<!-- begin col-3 -->
+				<div class="col-md-3 col-sm-6">
+					<div class="widget widget-stats bg-purple">
+						<div class="stats-icon"><i class="fa fa-clock-o"></i></div>
+						<div class="stats-info">
+							<h4>清理记录</h4>
+							<p>xx</p>
+						</div>
+						<div class="stats-link">
+							<a href="javascript:;">点击查看 <i class="fa fa-arrow-circle-o-right"></i></a>
+						</div>
+					</div>
+				</div>
+				<!-- end col-3 -->
+				<!-- begin col-3 -->
+				<div class="col-md-3 col-sm-6">
+					<div class="widget widget-stats bg-red">
+						<div class="stats-icon"><i class="fa fa-file"></i></div>
+						<div class="stats-info">
+							<h4>系统日志</h4>
+							<p>xxx</p>
+						</div>
+						<div class="stats-link">
+							<a href="javascript:;">点击查看 <i class="fa fa-arrow-circle-o-right"></i></a>
+						</div>
+					</div>
+				</div>
+				<!-- end col-3 -->
+			</div>
+			<div class="row">
+			    <!-- begin col-list -->
+			    <div class="col-md-6 ui-sortable">
+			        <!-- begin panel -->
+                    <div class="panel panel-inverse">
+                        <div class="panel-heading">
+                            <div class="panel-heading-btn">
+                                <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-default" data-click="panel-expand"><i class="fa fa-expand"></i></a>
+                                <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-warning" data-click="panel-collapse"><i class="fa fa-minus"></i></a>
+                            </div>
+                            <h4 class="panel-title">IN</h4>
+                        </div>
+                        <div class="panel-body">
+                            <!-- live -->
+                            <div class="gallery" id="gallery">
+                                <div class="image gallery-group-1">
+                                    <div class="image-inner">
+                                        <a href="/api/camera_live_in" data-lightbox="gallery-group-1">
+                                            <img src="/api/camera_live_in" alt="video live" />
+                                        </a>
+                                        <p class="image-caption">
+                                            直播
+                                        </p>
+                                    </div>
+                                    <div class="image-info">
+                                        <h5 class="title">海康摄像头A1</h5>
+                                        <div class="pull-right">
+                                            <a href="http://172.33.9.171" target="_blank">摄像头调节</a>
+                                        </div>
+                                        <div class="rating">
+                                            <span class="star active"></span>
+                                            <span class="star active"></span>
+                                            <span class="star active"></span>
+                                            <span class="star"></span>
+                                            <span class="star"></span>
+                                        </div>
+                                        <div class="desc">
+                                            1，使用 Web 服务帮助解决导航错误 <br />
+                                            2，使用 Web 服务帮助解决导航错误 <br />
+                                            3，使用 Web 服务帮助解决导航错误 <br />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- live end -->
+                        </div>
+                        <div class="panel-footer">
+                            <form name="send_message_form" data-id="message-form">
+                                <p class="" id="in_car_msg">进</p>
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <button id="camera_screen_in" type="button" class="btn btn-sm btn-primary m-r-5">
+                                            <i class="fa fa-camera"></i> 自动拍照识别
+                                        </button>
+                                    </span>
+                                    <input type="text" id="in_car_number" class="form-control input-sm" name="message" placeholder="请输入车牌号">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary btn-sm" type="button">进门</button>
+                                    </span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- end panel -->
+                </div>
+				<div class="col-md-6 ui-sortable">
+			        <!-- begin panel -->
+                    <div class="panel panel-inverse">
+                        <div class="panel-heading">
+                            <div class="panel-heading-btn">
+                                <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-default" data-click="panel-expand"><i class="fa fa-expand"></i></a>
+                                <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-warning" data-click="panel-collapse"><i class="fa fa-minus"></i></a>
+                            </div>
+                            <h4 class="panel-title">OUT</h4>
+                        </div>
+                        <div class="panel-body">
+                            <!-- live -->
+                            <div class="gallery" id="gallery">
+                                <div class="image gallery-group-1">
+                                    <div class="image-inner">
+                                        <a href="/api/camera_live_out" data-lightbox="gallery-group-1">
+                                            <img src="/api/camera_live_out" alt="video live" />
+                                        </a>
+                                        <p class="image-caption">
+                                            直播
+                                        </p>
+                                    </div>
+                                    <div class="image-info">
+                                        <h5 class="title">海康摄像头B1</h5>
+                                        <div class="pull-right">
+                                            <a href="http://172.33.9.171" target="_blank">摄像头调节</a>
+                                        </div>
+                                        <div class="rating">
+                                            <span class="star active"></span>
+                                            <span class="star active"></span>
+                                            <span class="star active"></span>
+                                            <span class="star"></span>
+                                            <span class="star"></span>
+                                        </div>
+                                        <div class="desc">
+                                            1，使用 Web 服务帮助解决导航错误 <br />
+                                            2，使用 Web 服务帮助解决导航错误 <br />
+                                            3，使用 Web 服务帮助解决导航错误 <br />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- live end -->
+                        </div>
+                        <div class="panel-footer">
+                            <form name="send_message_form" data-id="message-form">
+                                <p class="" id="out_car_msg">出</p>
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <button id="camera_screen_out" type="button" class="btn btn-sm btn-warning m-r-5">
+                                            <i class="fa fa-camera"></i> 自动拍照识别
+                                        </button>
+                                    </span>
+                                    <input type="text" id="out_car_number" class="form-control input-sm" name="message" placeholder="请输入车牌号">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-warning btn-sm" type="button">出门</button>
+                                    </span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- end panel -->
+                </div>
+                <!-- end col-list -->
+            </div>
+            <!-- end row -->
+		</div>
+		<!-- end #content -->
+
+		<!-- begin scroll to top btn -->
+		<a href="javascript:;" class="btn btn-icon btn-circle btn-success btn-scroll-to-top fade" data-click="scroll-top"><i class="fa fa-angle-up"></i></a>
+		<!-- end scroll to top btn -->
+	</div>
+	<!-- end page container -->
+
+	<!-- ================== BEGIN BASE JS ================== -->
+	{% include "inc_foot_base_js.html" %}
+	<script type="text/javascript" src="{{url_for('static',filename='js/socket.io.min.js')}}"></script>
+	<!-- ================== END BASE JS ================== -->
+
+	<!-- ================== BEGIN PAGE LEVEL JS ================== -->
+    <script src="{{url_for('static',filename='plugins/isotope/jquery.isotope.min.js')}}"></script>
+  	<script src="{{url_for('static',filename='plugins/lightbox/js/lightbox.min.js')}}"></script>
+	<script src="{{url_for('static',filename='js/gallery.demo.min.js')}}"></script>
+
+	<script src="{{url_for('static',filename='js/apps.min.js')}}"></script>
+	<!-- ================== END PAGE LEVEL JS ================== -->
+
+	<script>
+		$(document).ready(function() {
+			App.init();
+			PagesClassActive(); //page.js 根据页面地址激活对应class active
+			showTime();//显示系统实际showTime()函数
+			Gallery.init();//视频直播相册框
+            // 拍照按钮交互 Begin
+            $("#camera_screen_in").click(function(){
+                $("#in_car_msg").html("<img src='/static/img/loading.svg'/> 请稍等……");
+                htmlobj = $.ajax({
+                    url:"/api/camera_screen_in",
+                    async:true,
+                    dataType:"json",
+                    error : function() {
+                        $("#in_car_msg").html("发送识别请求异常，服务暂不可用");
+                    },
+                    success : function(data) {
+                        console.log(data); // data 是json，直接处理
+                        //var json_txt = data;
+                        //var obj = JSON.parse(json_txt);
+                        var obj = data;
+                        //alert(json_txt);
+                        if(obj.code == '1'){
+                            //alert('识别成功');
+                            $("#in_car_number").val(obj.number);
+                            $("#in_car_msg").html(obj.data + ' 请确认！');
+                            $("#in_car_msg").addClass("text-success");
+                        }else{
+                            //alert('识别失败');
+                            $("#in_car_number").val('');
+                            $("#in_car_msg").html(obj.data + obj.error + ' 请重试或手动录入！');
+                            $("#in_car_msg").addClass("text-danger");
+                        }
+                    }
+                });
+            });
+            // out
+            $("#camera_screen_out").click(function(){
+                $("#out_car_msg").html("<img src='/static/img/loading.svg'/> 请稍等……");
+                htmlobj = $.ajax({
+                    url:"/api/camera_screen_out",
+                    async:true,
+                    dataType:"json",
+                    error : function() {
+                        $("#out_car_msg").html("发送识别请求异常，服务暂不可用");
+                    },
+                    success : function(data) {
+                        console.log(data); // data 是json，直接处理
+                        //var json_txt = data;
+                        //var obj = JSON.parse(json_txt);
+                        var obj = data;
+                        //alert(json_txt);
+                        if(obj.code == '1'){
+                            //alert('识别成功');
+                            $("#out_car_number").val(obj.number);
+                            $("#out_car_msg").html(obj.data + ' 请确认！');
+                            $("#out_car_msg").addClass("text-success");
+                        }else{
+                            //alert('识别失败');
+                            $("#out_car_number").val('');
+                            $("#out_car_msg").html(obj.data + obj.error + ' 请重试或手动录入！');
+                            $("#out_car_msg").addClass("text-danger");
+                        }
+                    }
+                });
+            });
+            // 拍照按钮交互 End
+		});
+	</script>
+</body>
+</html>

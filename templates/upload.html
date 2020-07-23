@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<head>
+	<meta charset="utf-8" />
+	<title>upload test</title>
+	<meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+	<!-- ================== BEGIN BASE CSS STYLE ================== -->
+	{% include "inc_head_css.html" %}
+	<!-- ================== END BASE CSS STYLE ================== -->
+
+	<!-- ================== BEGIN PAGE LEVEL STYLE ================== -->
+
+	<!-- ================== END PAGE LEVEL STYLE ================== -->
+
+	<!-- ================== BEGIN BASE JS ================== -->
+	{% include "inc_head_js.html" %}
+	<!-- ================== END BASE JS ================== -->
+</head>
+<body>
+	<!-- begin #page-loader -->
+	<div id="page-loader" class="fade in"><span class="spinner"></span></div>
+	<!-- end #page-loader -->
+
+	<!-- begin #page-container -->
+	<div id="page-container" class="fade page-sidebar-fixed page-header-fixed">
+		<!-- begin #header -->
+		{% include "inc_header.html" %}
+		<!-- end #header -->
+
+		<!-- begin #sidebar -->
+		{% include "inc_sidebar.html" %}
+		<!-- end #sidebar -->
+
+		<!-- begin #content -->
+		<div id="content" class="content">
+
+			<!-- begin row -->
+			<div class="row">
+			    <!-- begin col-list -->
+			    <div class="col-md-6 ui-sortable">
+			        <!-- begin panel -->
+                    <div class="panel panel-inverse">
+                        <div class="panel-heading">
+                            <div class="panel-heading-btn">
+                                <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-default" data-click="panel-expand"><i class="fa fa-expand"></i></a>
+                                <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-warning" data-click="panel-collapse"><i class="fa fa-minus"></i></a>
+                            </div>
+                            <h4 class="panel-title">上传文件</h4>
+                        </div>
+						<div class="alert alert-info fade in">
+                            <button type="button" class="close" data-dismiss="alert">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                            1，图片大小最大为3M；<br/>
+                            2，图片格式为：jpg、png、bmp；<br/>
+                        </div>
+                        <div class="panel-body">
+                            <form class="form-horizontal" action="/api/v1/upload" method="POST" enctype="multipart/form-data">
+                                <fieldset>
+                                    <legend>图片</legend>
+                                    <div class="input-group">
+                                        <input class="form-control" name="uploadedfile" type="file" accept="image/jpeg,image/jpg,image/png">
+                                        <span class="input-group-addon"><i class="fa fa-file-picture-o"></i></span>
+                                    </div>
+                                    <div id="test-image-preview"></div>
+                                    <hr/>
+                                    <div class="form-group">
+                                        <div class="col-md-8 col-md-offset-4">
+                                            <button type="submit" class="btn btn-sm btn-primary m-r-5">开始上传</button>
+                                            <button type="reset" class="btn btn-sm btn-default">取消上传</button>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- end panel -->
+                </div>
+                <!-- end col-list -->
+            </div>
+            <!-- end row -->
+		</div>
+		<!-- end #content -->
+
+		<!-- begin scroll to top btn -->
+		<a href="javascript:;" class="btn btn-icon btn-circle btn-success btn-scroll-to-top fade" data-click="scroll-top"><i class="fa fa-angle-up"></i></a>
+		<!-- end scroll to top btn -->
+	</div>
+	<!-- end page container -->
+
+	<!-- ================== BEGIN BASE JS ================== -->
+	{% include "inc_foot_base_js.html" %}
+	<!-- ================== END BASE JS ================== -->
+
+	<!-- ================== BEGIN PAGE LEVEL JS ================== -->
+	<script src="{{url_for('static',filename='js/apps.min.js')}}"></script>
+	<!-- ================== END PAGE LEVEL JS ================== -->
+
+	<script>
+		$(document).ready(function() {
+			App.init();
+			PagesClassActive(); //page.js 根据页面地址激活对应class active
+		});
+	</script>
+</body>
+</html>
