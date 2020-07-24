@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-# -*- 人生苦短，我用Python
+# -*- 人生苦短，Python当歌
 import cv2
 
 
@@ -13,7 +13,7 @@ class VideoCamera(object):
 
     def get_frame(self):
         success, image = self.cap.read()
-        ret, jpeg = cv2.imencode('.jpg', image)
+        ret, jpeg = cv2.imencode('.jpg', image)  # 从网络读取图像数据并压缩编码转换成图片格式
         return jpeg.tobytes()
 
     def get_screen(self, save_path):

@@ -33,9 +33,9 @@ APP_pass = 'admin'
 APP_basedir = os.path.abspath(os.path.dirname(__file__))  # 取当前程序运行目录，D:\MyPython\test\QQ_bar
 APP_file_type = ['png', 'jpg', 'jpeg']
 APP_file_folder = '/static/uploads/'  # flask中默认采用static为静态资源访问
-
-tencent_api_id = 'AKIDau1ytb4lzzlJYqDFR36z1RodLFtjHk27'
-tencent_api_key = 'hHfqXdqcMwdx34pNfq54NnDQwmJ2Q5Bo'
+# 腾讯云密钥
+tencent_api_id = ''
+tencent_api_key = ''
 tencent_api_area = 'ap-guangzhou'
 
 # flask 登录会话所需参数
