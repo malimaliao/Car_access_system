@@ -21,6 +21,9 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.ocr.v20181119 import ocr_client, models
 
+# ini
+import configparser
+
 app = Flask(__name__)
 
 APP_name = 'Car Access System'
@@ -29,15 +32,13 @@ APP_version = '0.1'
 APP_database = 'car_data.db'
 APP_user = 'admin'
 APP_pass = 'admin'
+APP_config_file = 'inc_config.ini'
 
 APP_basedir = os.path.abspath(os.path.dirname(__file__))  # 取当前程序运行目录，D:\MyPython\test\QQ_bar
 APP_file_type = ['png', 'jpg', 'jpeg']
 APP_uploads = os.path.join(APP_basedir, 'static', 'uploads')
 
-# 腾讯云密钥
-tencent_api_id = ''
-tencent_api_key = ''
-tencent_api_area = 'ap-guangzhou'
+global APP_config_ini
 
 # flask 登录会话所需参数
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
@@ -48,7 +49,7 @@ app.config['SECRET_KEY'] = 'c9d20df0366cec4e7561c0'  # flask会话所需，防�
 def init_db():
     # 通过sql脚本提交方式，初始化并建立一个数据库
     with closing(connect_db()) as db:
-        with app.open_resource('init.sql') as f:
+        with app.open_resource('inc_init.sql') as f:
             sql = f.read().decode('utf-8')
             db.cursor().executescript(sql)
         db.commit()
@@ -69,6 +70,9 @@ def gen(camera):
 # flask 请求
 @app.before_request
 def before_request():
+    global APP_config_ini
+    APP_config_ini = configparser.ConfigParser()  # ini 类实例化
+    APP_config_ini.read(APP_config_file, encoding='utf-8')  # 读入ini文件
     g.db = connect_db()
 
 
@@ -88,9 +92,18 @@ def page_not_found(error):
 # 网站根目录
 @app.route('/')
 def system_index():
+    global APP_config_ini
     if not session.get('APP_system_user'):
         return redirect(url_for('system_login'))
-    return render_template('index.html')
+    return render_template(
+        'index.html',
+        app_config_camera_in_web=APP_config_ini['camera_in']['web'],
+        app_config_camera_in_name=APP_config_ini['camera_in']['name'],
+        app_config_camera_in_note=APP_config_ini['camera_in']['note'],
+        app_config_camera_out_web=APP_config_ini['camera_out']['web'],
+        app_config_camera_out_name=APP_config_ini['camera_out']['name'],
+        app_config_camera_out_note=APP_config_ini['camera_in']['note'],
+    )
 
 
 # /login/
@@ -116,8 +129,6 @@ def system_login_check():
 # /logout/
 @app.route('/logout/')
 def logout():
-    global _socket_task_account_data
-    _socket_task_account_data = dict()  # 防止用户在执行任务列表时跳转回来，以停止socket的任务列表在后台工作，此处重置任务列表为空数据
     session.pop('APP_system_user')  # 删除session
     session.pop('APP_system_pass')  # 删除session
     flash('您已退出登录！')  # 密码错误！
@@ -165,24 +176,27 @@ def system_upload_car_img():
 # api 摄像头web直播 in
 @app.route('/api/camera_live_in')
 def system_video_feed_in():
-    camera_url = 'rtsp://admin:12345@172.33.9.171/h264/ch2/main/av_stream'
+    global APP_config_ini
+    camera_url = APP_config_ini['camera_in']['rtsp']
     return Response(gen(VideoCamera(camera_url)), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 # api 摄像头web直播 out
 @app.route('/api/camera_live_out')
 def system_video_feed_out():
-    camera_url = 'rtsp://admin:12345@172.33.9.171/h264/ch3/main/av_stream'
+    global APP_config_ini
+    camera_url = APP_config_ini['camera_out']['rtsp']
     return Response(gen(VideoCamera(camera_url)), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 # api 摄像头web拍照 in
 @app.route('/api/camera_screen_in')
 def system_camera_screen_in():
+    global APP_config_ini
     _car = dict()
     _save_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S_%f')
     _save_path = os.path.join(APP_basedir, 'static', 'uploads', _save_time)  # 保存路径 d:\test\2020151413_303 ，不含后缀
-    camera_url = 'rtsp://admin:12345@172.33.9.171/h264/ch2/main/av_stream'
+    camera_url = APP_config_ini['camera_in']['rtsp']
     _save_file = VideoCamera(camera_url).get_screen(_save_path)
     print('拍照存储：', _save_file)
     # 腾讯api处理 开始 =============================================
@@ -200,10 +214,11 @@ def system_camera_screen_in():
 # api 摄像头web拍照 out
 @app.route('/api/camera_screen_out')
 def system_camera_screen_out():
+    global APP_config_ini
     _car = dict()
     _save_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S_%f')
     _save_path = os.path.join(APP_basedir, 'static', 'uploads', _save_time)  # 保存路径 d:\test\2020151413_303 ，不含后缀
-    camera_url = 'rtsp://admin:12345@172.33.9.171/h264/ch3/main/av_stream'
+    camera_url = APP_config_ini['camera_out']['rtsp']
     _save_file = VideoCamera(camera_url).get_screen(_save_path)
     print('拍照存储：', _save_file)
     # 腾讯api处理 开始 =============================================
@@ -220,15 +235,16 @@ def system_camera_screen_out():
 
 # 腾讯车牌识别API ，返回一个字典 {'code':1, 'data': '识别失败, 'error': 'OCR无法识别'}
 def Tencent_car_api(img_base64):
+    global APP_config_ini
     car = dict()
     try:
-        cred = credential.Credential(tencent_api_id, tencent_api_key)
+        cred = credential.Credential(APP_config_ini['tencent_sdk']['api_id'], APP_config_ini['tencent_sdk']['api_key'])
         httpProfile = HttpProfile()
         httpProfile.endpoint = "ocr.tencentcloudapi.com"
 
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
-        client = ocr_client.OcrClient(cred, tencent_api_area, clientProfile)
+        client = ocr_client.OcrClient(cred, APP_config_ini['tencent_sdk']['api_area'], clientProfile)
 
         req = models.LicensePlateOCRRequest()
         params = '{\"ImageBase64\":\"' + img_base64 + '\"}'
@@ -294,4 +310,30 @@ if __name__ == '__main__':
     else:
         print('--- 初始图片库 ', APP_uploads)
         os.makedirs(APP_uploads)
+
+    APP_config_ini = configparser.ConfigParser()  # ini 类实例化
+    if not os.path.exists(APP_config_file):
+        print('--- 初始配置文件 ', APP_config_file)
+        APP_config_ini.add_section('camera_in')
+        APP_config_ini.set('camera_in', 'ip', '192.168.1.101')
+        APP_config_ini.set('camera_in', 'web', 'http://192.168.1.101:8080')
+        APP_config_ini.set('camera_in', 'name', '进门摄像头')
+        APP_config_ini.set('camera_in', 'rtsp', 'rtsp://admin:12345@192.168.1.101/h264/ch2/main/av_stream')
+        APP_config_ini.set('camera_in', 'note', '暂无备注')
+        APP_config_ini.add_section('camera_out')
+        APP_config_ini.set('camera_out', 'ip', '192.168.1.101')
+        APP_config_ini.set('camera_out', 'web', 'http://192.168.1.101:8080')
+        APP_config_ini.set('camera_out', 'name', '出门摄像头')
+        APP_config_ini.set('camera_out', 'rtsp', 'rtsp://admin:12345@192.168.1.101/h264/ch2/main/av_stream')
+        APP_config_ini.set('camera_out', 'note', '暂无备注')
+        APP_config_ini.add_section('tencent_sdk')
+        APP_config_ini.set('tencent_sdk', 'api_id', '')
+        APP_config_ini.set('tencent_sdk', 'api_key', '')
+        APP_config_ini.set('tencent_sdk', 'api_area', '')
+        APP_config_ini.write(open(APP_config_file, 'a', encoding='utf-8'))
+
+    print('--- 读入配置文件 ', APP_config_file)
+    APP_config_ini.read(APP_config_file, encoding='utf-8')  # 读入ini文件
+
+    # flask run
     app.run(host='0.0.0.0', port=5000, debug=True)

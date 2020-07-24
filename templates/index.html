@@ -45,9 +45,9 @@
 				<!-- begin col-3 -->
 				<div class="col-md-3 col-sm-6">
 					<div class="widget widget-stats bg-green">
-						<div class="stats-icon"><i class="fa fa-desktop"></i></div>
+						<div class="stats-icon"><i class="fa fa-car"></i></div>
 						<div class="stats-info">
-							<h4>使用统计</h4>
+							<h4>现存车辆</h4>
 							<p>xxx</p>
 						</div>
 						<div class="stats-link">
@@ -58,10 +58,10 @@
 				<!-- end col-3 -->
 				<!-- begin col-3 -->
 				<div class="col-md-3 col-sm-6">
-					<div class="widget widget-stats bg-blue">
-						<div class="stats-icon"><i class="fa fa-users"></i></div>
+					<div class="widget widget-stats bg-red">
+						<div class="stats-icon"><i class="fa fa-car"></i></div>
 						<div class="stats-info">
-							<h4>账号统计</h4>
+							<h4>超时车辆</h4>
 							<p>xxx</p>
 						</div>
 						<div class="stats-link">
@@ -73,9 +73,9 @@
 				<!-- begin col-3 -->
 				<div class="col-md-3 col-sm-6">
 					<div class="widget widget-stats bg-purple">
-						<div class="stats-icon"><i class="fa fa-clock-o"></i></div>
+						<div class="stats-icon"><i class="fa fa-automobile"></i></div>
 						<div class="stats-info">
-							<h4>清理记录</h4>
+							<h4>登记车辆</h4>
 							<p>xx</p>
 						</div>
 						<div class="stats-link">
@@ -86,8 +86,8 @@
 				<!-- end col-3 -->
 				<!-- begin col-3 -->
 				<div class="col-md-3 col-sm-6">
-					<div class="widget widget-stats bg-red">
-						<div class="stats-icon"><i class="fa fa-file"></i></div>
+					<div class="widget widget-stats bg-grey">
+						<div class="stats-icon"><i class="fa fa-automobile"></i></div>
 						<div class="stats-info">
 							<h4>系统日志</h4>
 							<p>xxx</p>
@@ -124,9 +124,9 @@
                                         </p>
                                     </div>
                                     <div class="image-info">
-                                        <h5 class="title">海康摄像头A1</h5>
+                                        <h5 class="title"><i class="fa fa-video-camera"></i> {{app_config_camera_in_name}}</h5>
                                         <div class="pull-right">
-                                            <a href="http://172.33.9.171" target="_blank">摄像头调节</a>
+                                            <a href="{{app_config_camera_in_web}}" target="_blank"><i class="fa fa-wrench"></i> 摄像头调节</a>
                                         </div>
                                         <div class="rating">
                                             <span class="star active"></span>
@@ -136,9 +136,7 @@
                                             <span class="star"></span>
                                         </div>
                                         <div class="desc">
-                                            1，使用 Web 服务帮助解决导航错误 <br />
-                                            2，使用 Web 服务帮助解决导航错误 <br />
-                                            3，使用 Web 服务帮助解决导航错误 <br />
+                                            {{app_config_camera_in_note}}
                                         </div>
                                     </div>
                                 </div>
@@ -187,9 +185,9 @@
                                         </p>
                                     </div>
                                     <div class="image-info">
-                                        <h5 class="title">海康摄像头B1</h5>
+                                        <h5 class="title"><i class="fa fa-video-camera"></i> {{app_config_camera_out_name}}</h5>
                                         <div class="pull-right">
-                                            <a href="http://172.33.9.171" target="_blank">摄像头调节</a>
+                                            <a href="{{app_config_camera_out_web}}" target="_blank"><i class="fa fa-wrench"></i> 摄像头调节</a>
                                         </div>
                                         <div class="rating">
                                             <span class="star active"></span>
@@ -199,9 +197,7 @@
                                             <span class="star"></span>
                                         </div>
                                         <div class="desc">
-                                            1，使用 Web 服务帮助解决导航错误 <br />
-                                            2，使用 Web 服务帮助解决导航错误 <br />
-                                            3，使用 Web 服务帮助解决导航错误 <br />
+                                            {{app_config_camera_out_note}}
                                         </div>
                                     </div>
                                 </div>
