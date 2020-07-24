@@ -95,11 +95,23 @@ def system_index():
     global APP_config_ini
     if not session.get('APP_system_user'):
         return redirect(url_for('system_login'))
+    _camera_in_rtsp_img = APP_config_ini['camera_in']['rtsp']
+    if _camera_in_rtsp_img == "":
+        _camera_in_rtsp_img = '/static/img/live.jpg'
+    else:
+        _camera_in_rtsp_img = '/api/camera_live_in'
+    _camera_out_rtsp_img = APP_config_ini['camera_out']['rtsp']
+    if _camera_out_rtsp_img == "":
+        _camera_out_rtsp_img = '/static/img/live.jpg'
+    else:
+        _camera_out_rtsp_img = '/api/camera_live_out'
     return render_template(
         'index.html',
+        app_config_camera_in_rtsp_img=_camera_in_rtsp_img,
         app_config_camera_in_web=APP_config_ini['camera_in']['web'],
         app_config_camera_in_name=APP_config_ini['camera_in']['name'],
         app_config_camera_in_note=APP_config_ini['camera_in']['note'],
+        app_config_camera_out_rtsp_img=_camera_out_rtsp_img,
         app_config_camera_out_web=APP_config_ini['camera_out']['web'],
         app_config_camera_out_name=APP_config_ini['camera_out']['name'],
         app_config_camera_out_note=APP_config_ini['camera_in']['note'],
@@ -318,13 +330,13 @@ if __name__ == '__main__':
         APP_config_ini.set('camera_in', 'ip', '192.168.1.101')
         APP_config_ini.set('camera_in', 'web', 'http://192.168.1.101:8080')
         APP_config_ini.set('camera_in', 'name', '进门摄像头')
-        APP_config_ini.set('camera_in', 'rtsp', 'rtsp://admin:12345@192.168.1.101/h264/ch2/main/av_stream')
+        APP_config_ini.set('camera_in', 'rtsp', '')
         APP_config_ini.set('camera_in', 'note', '暂无备注')
         APP_config_ini.add_section('camera_out')
         APP_config_ini.set('camera_out', 'ip', '192.168.1.101')
         APP_config_ini.set('camera_out', 'web', 'http://192.168.1.101:8080')
         APP_config_ini.set('camera_out', 'name', '出门摄像头')
-        APP_config_ini.set('camera_out', 'rtsp', 'rtsp://admin:12345@192.168.1.101/h264/ch2/main/av_stream')
+        APP_config_ini.set('camera_out', 'rtsp', '')
         APP_config_ini.set('camera_out', 'note', '暂无备注')
         APP_config_ini.add_section('tencent_sdk')
         APP_config_ini.set('tencent_sdk', 'api_id', '')
