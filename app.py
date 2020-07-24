@@ -23,7 +23,7 @@ from tencentcloud.ocr.v20181119 import ocr_client, models
 
 app = Flask(__name__)
 
-APP_name = 'CAR system'
+APP_name = 'Car Access System'
 APP_description = '暂无介绍'
 APP_version = '0.1'
 APP_database = 'car_data.db'
@@ -32,7 +32,8 @@ APP_pass = 'admin'
 
 APP_basedir = os.path.abspath(os.path.dirname(__file__))  # 取当前程序运行目录，D:\MyPython\test\QQ_bar
 APP_file_type = ['png', 'jpg', 'jpeg']
-APP_file_folder = '/static/uploads/'  # flask中默认采用static为静态资源访问
+APP_uploads = os.path.join(APP_basedir, 'static', 'uploads')
+
 # 腾讯云密钥
 tencent_api_id = ''
 tencent_api_key = ''
@@ -41,6 +42,7 @@ tencent_api_area = 'ap-guangzhou'
 # flask 登录会话所需参数
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 app.config['SECRET_KEY'] = 'c9d20df0366cec4e7561c0'  # flask会话所需，防止csrf跨站所需秘钥变量，暂时没什么用
+
 
 # 初始化数据库
 def init_db():
@@ -266,6 +268,8 @@ def Tencent_car_api(img_base64):
             car['error'] = '文件内容太大'
         if 'ResourcesSoldOut.ChargeStatusException' in error:
             car['error'] = '云识别系统计费状态异常'
+        if 'secret id should not be none' in error:
+            car['error'] = '云识别系统未配置'
     return car
 
 
@@ -281,8 +285,13 @@ def img_to_base64(img_file):
 
 if __name__ == '__main__':
     if os.path.exists(APP_database):
-        print('--- 载入数据库 ---')
+        print('--- 载入数据库', APP_database)
     else:
-        print('--- 初始数据库 ---')
+        print('--- 初始数据库', APP_database)
         init_db()
+    if os.path.exists(APP_uploads):
+        print('--- 读入上传库 ', APP_uploads)
+    else:
+        print('--- 初始图片库 ', APP_uploads)
+        os.makedirs(APP_uploads)
     app.run(host='0.0.0.0', port=5000, debug=True)
