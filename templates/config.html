@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<head>
+	<meta charset="utf-8" />
+	<title>系统配置</title>
+	<meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+	<!-- ================== BEGIN BASE CSS STYLE ================== -->
+	{% include "inc_head_css.html" %}
+	<!-- ================== END BASE CSS STYLE ================== -->
+
+	<!-- ================== BEGIN PAGE LEVEL STYLE ================== -->
+
+	<!-- ================== END PAGE LEVEL STYLE ================== -->
+
+	<!-- ================== BEGIN BASE JS ================== -->
+	{% include "inc_head_js.html" %}
+	<!-- ================== END BASE JS ================== -->
+</head>
+<body>
+	<!-- begin #page-loader -->
+	<div id="page-loader" class="fade in"><span class="spinner"></span></div>
+	<!-- end #page-loader -->
+
+	<!-- begin #page-container -->
+	<div id="page-container" class="fade page-sidebar-fixed page-header-fixed">
+		<!-- begin #header -->
+		{% include "inc_header.html" %}
+		<!-- end #header -->
+
+		<!-- begin #sidebar -->
+		{% include "inc_sidebar.html" %}
+		<!-- end #sidebar -->
+
+		<!-- begin #content -->
+		<div id="content" class="content">
+
+			<!-- begin row -->
+			<div class="row">
+			    <!-- begin col-list -->
+			    <div class="col-md-6 col-sm-12 ui-sortable">
+			        <!-- begin panel -->
+                    <div class="panel panel-inverse">
+                        <div class="panel-heading">
+                            <div class="panel-heading-btn">
+                                <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-default" data-click="panel-expand"><i class="fa fa-expand"></i></a>
+                                <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-warning" data-click="panel-collapse"><i class="fa fa-minus"></i></a>
+                            </div>
+                            <h4 class="panel-title">系统管理</h4>
+                        </div>
+
+                        {% with messages = get_flashed_messages(with_categories=true, category_filter=["msg_error"]) %}
+							{% if messages %}
+								{% for category, message in messages %}
+									<div class="alert alert-danger fade in">
+										<button type="button" class="close" data-dismiss="alert">
+											<span aria-hidden="true">×</span>
+										</button>
+										{{ message }}
+									</div>
+								{% endfor %}
+							{% endif %}
+						{% endwith %}
+
+                        {% with msgs = get_flashed_messages(with_categories=true, category_filter=["msg_ok"]) %}
+							{% if msgs %}
+								{% for category, msg in msgs %}
+									<div class="alert alert-info fade in">
+										<button type="button" class="close" data-dismiss="alert">
+											<span aria-hidden="true">×</span>
+										</button>
+										{{ msg }}
+									</div>
+								{% endfor %}
+							{% endif %}
+						{% endwith %}
+
+                        <div class="panel-body">
+                            <form action="/system/config/save" method="POST" enctype="multipart/form-data">
+                                <fieldset>
+                                    <legend class="text-info">系统配置</legend>
+                                    <div class="form-group">
+                                        <div class="row row-space-10">
+                                            <div class="col-md-6">
+                                                <label>管理员账号</label>
+                                                <input type="text" class="form-control" name="system_admin_user" value="{{app_config_system_admin_user}}" placeholder="请使用英文" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>管理员密码</label>
+                                                <input type="text" class="form-control" name="system_admin_pass" value="{{app_config_system_admin_pass}}" placeholder="" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <legend class="text-success">摄像头配置</legend>
+                                    <div class="form-group">
+                                        <div class="row row-space-10">
+                                            <div class="col-md-6">
+                                                <label>进门摄像头_名称</label>
+                                                <input type="text" class="form-control" name="camera_in_name" value="{{app_config_camera_in_name}}" placeholder="A1摄像头">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>进门摄像头_IP地址</label>
+                                                <input type="text" class="form-control" name="camera_in_ip" value="{{app_config_camera_in_ip}}" placeholder="192.168.1.1">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>进门摄像头_后台地址</label>
+                                        <input type="text" class="form-control" name="camera_in_web" value="{{app_config_camera_in_web}}" placeholder="http://192.168.1.101:8080">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>进门摄像头_RTSP视频流（<a href="https://www.cnblogs.com/changyiqiang/p/11174051.html" target="_blank">*说明</a> ）</label>
+                                        <input type="text" class="form-control" name="camera_in_rtsp" value="{{app_config_camera_in_rtsp}}" placeholder="rtsp://admin:12345@192.168.1.101/h264/ch2/main/av_stream">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>进门摄像头_介绍</label>
+                                        <textarea class="form-control" name="camera_in_note" placeholder="请简要描述，支持HTML代码" rows="3">{{app_config_camera_in_note}}</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row row-space-10">
+                                            <div class="col-md-6">
+                                                <label>出门摄像头_名称</label>
+                                                <input type="text" name="camera_out_name" value="{{app_config_camera_out_name}}" class="form-control" placeholder="A2摄像头">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>出门摄像头_IP地址</label>
+                                                <input type="text" name="camera_out_ip" value="{{app_config_camera_out_ip}}" class="form-control" placeholder="192.168.1.102">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>出门摄像头_后台地址</label>
+                                        <input type="text" name="camera_out_web" value="{{app_config_camera_out_web}}" class="form-control" placeholder="http://192.168.1.102/">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>出门摄像头_RTSP视频流</label>
+                                        <input type="text" name="camera_out_rtsp" value="{{app_config_camera_out_rtsp}}" class="form-control" placeholder="rtsp://admin:12345@192.168.1.102/h264/ch2/main/av_stream">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>出门摄像头_介绍</label>
+                                        <textarea name="camera_out_note" class="form-control" placeholder="请简要描述，支持HTML代码" rows="3">{{app_config_camera_out_name}}</textarea>
+                                    </div>
+                                    <hr>
+                                    <legend class="text-primary">腾讯云车牌识别API密钥</legend>
+                                    <p>
+                                        本系统的车牌拍照云识别服务基于腾讯云车牌识别SDK<br/>
+                                        1，使用此功能需要先通过腾讯云开通【<a href="https://console.cloud.tencent.com/ocr/plate" target="_blank">文字识别/汽车相关识别</a>】服务。<br/>
+                                        2，服务开通后，通过腾讯云账号设置中【<a href="https://console.cloud.tencent.com/cam/capi" target="_blank">访问密钥</a> 】获取<code>SecretId</code>和<code>SecretKey</code><br/>
+                                        3，关于腾讯云API的文字识别服务价格列表参照：https://cloud.tencent.com/document/product/866/17619
+                                    </p>
+                                    <div class="form-group">
+                                        <label>SecretId</label>
+                                        <input type="text" name="tencent_sdk_api_id" value="{{app_config_tencent_sdk_api_id}}" class="form-control" placeholder="">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>SecretKey</label>
+                                        <input type="text" name="tencent_sdk_api_key" value="{{app_config_tencent_sdk_api_key}}" class="form-control" placeholder="">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Region（地区列表请<a href="https://cloud.tencent.com/document/product/866/36211" target="_blank">点击此处</a>了解）</label>
+                                        <input type="text" name="tencent_sdk_api_area" value="{{app_config_tencent_sdk_api_area}}" class="form-control" placeholder="api-guangzhou">
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-8 col-md-offset-4">
+                                            <button type="submit" class="btn btn-sm btn-primary m-r-5">保存</button>
+                                            <button type="reset" class="btn btn-sm btn-default">重填</button>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- end panel -->
+                </div>
+                <!-- end col-list -->
+            </div>
+            <!-- end row -->
+		</div>
+		<!-- end #content -->
+
+		<!-- begin scroll to top btn -->
+		<a href="javascript:;" class="btn btn-icon btn-circle btn-success btn-scroll-to-top fade" data-click="scroll-top"><i class="fa fa-angle-up"></i></a>
+		<!-- end scroll to top btn -->
+	</div>
+	<!-- end page container -->
+
+	<!-- ================== BEGIN BASE JS ================== -->
+	{% include "inc_foot_base_js.html" %}
+	<!-- ================== END BASE JS ================== -->
+
+	<!-- ================== BEGIN PAGE LEVEL JS ================== -->
+	<script src="{{url_for('static',filename='js/apps.min.js')}}"></script>
+	<!-- ================== END PAGE LEVEL JS ================== -->
+
+	<script>
+		$(document).ready(function() {
+			App.init();
+			PagesClassActive(); //page.js 根据页面地址激活对应class active
+		});
+	</script>
+</body>
+</html>

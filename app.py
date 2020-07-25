@@ -22,7 +22,7 @@ from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentClo
 from tencentcloud.ocr.v20181119 import ocr_client, models
 
 # ini
-import configparser
+from configobj import ConfigObj
 
 app = Flask(__name__)
 
@@ -30,15 +30,11 @@ APP_name = 'Car Access System'
 APP_description = '暂无介绍'
 APP_version = '0.1'
 APP_database = 'car_data.db'
-APP_user = 'admin'
-APP_pass = 'admin'
 APP_config_file = 'inc_config.ini'
 
 APP_basedir = os.path.abspath(os.path.dirname(__file__))  # 取当前程序运行目录，D:\MyPython\test\QQ_bar
 APP_file_type = ['png', 'jpg', 'jpeg']
 APP_uploads = os.path.join(APP_basedir, 'static', 'uploads')
-
-global APP_config_ini
 
 # flask 登录会话所需参数
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
@@ -70,9 +66,6 @@ def gen(camera):
 # flask 请求
 @app.before_request
 def before_request():
-    global APP_config_ini
-    APP_config_ini = configparser.ConfigParser()  # ini 类实例化
-    APP_config_ini.read(APP_config_file, encoding='utf-8')  # 读入ini文件
     g.db = connect_db()
 
 
@@ -92,9 +85,9 @@ def page_not_found(error):
 # 网站根目录
 @app.route('/')
 def system_index():
-    global APP_config_ini
     if not session.get('APP_system_user'):
         return redirect(url_for('system_login'))
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
     _camera_in_rtsp_img = APP_config_ini['camera_in']['rtsp']
     if _camera_in_rtsp_img == "":
         _camera_in_rtsp_img = '/static/img/live.jpg'
@@ -127,15 +120,25 @@ def system_login():
 # /login_check/
 @app.route('/login_check/', methods=['POST'])
 def system_login_check():
-    _login_user = request.form.get('login_user')
-    _login_pass = request.form.get('login_pass')
-    if _login_user == APP_user and _login_pass == APP_pass:
-        session['APP_system_user'] = _login_user
-        session['APP_system_pass'] = _login_pass
-        return redirect(url_for('system_index'))
-    else:
-        flash('账号密码不正确！')  # 密码错误！
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
+    _config_admin_user = APP_config_ini['system']['admin_user']
+    _config_admin_pass = APP_config_ini['system']['admin_pass']
+    if _config_admin_user == '' or _config_admin_pass == '':
+        flash('不允许使用空账号密码登录！')
         return redirect(url_for('system_login'))
+    if _config_admin_user == 'admin' and _config_admin_pass == 'admin':
+        flash('系统现在无法让您登录！因为安全考虑，您必须先在系统文件夹下修改inc_config.ini文件中的默认账号密码后，才可以进行登录')
+        return redirect(url_for('system_login'))
+    else:
+        _login_user = request.form.get('login_user')
+        _login_pass = request.form.get('login_pass')
+        if _login_user == _config_admin_user and _login_pass == _config_admin_pass:
+            session['APP_system_user'] = _login_user
+            session['APP_system_pass'] = _login_pass
+            return redirect(url_for('system_index'))
+        else:
+            flash('账号密码不正确！')  # 密码错误！
+            return redirect(url_for('system_login'))
 
 
 # /logout/
@@ -147,8 +150,83 @@ def logout():
     return redirect(url_for('system_login'))
 
 
-# 上传表单(web调试用)
-@app.route('/upload/')
+# 配置表单(管理后台配置)
+@app.route('/system/config/')
+def system_config():
+    if not session.get('APP_system_user'):
+        return redirect(url_for('system_login'))
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
+    return render_template(
+        'config.html',
+        app_config_system_admin_user=APP_config_ini['system']['admin_user'],
+        app_config_system_admin_pass=APP_config_ini['system']['admin_pass'],
+        app_config_camera_in_ip=APP_config_ini['camera_in']['ip'],
+        app_config_camera_in_web=APP_config_ini['camera_in']['web'],
+        app_config_camera_in_name=APP_config_ini['camera_in']['name'],
+        app_config_camera_in_rtsp=APP_config_ini['camera_in']['rtsp'],
+        app_config_camera_in_note=APP_config_ini['camera_in']['note'],
+        app_config_camera_out_ip=APP_config_ini['camera_out']['ip'],
+        app_config_camera_out_web=APP_config_ini['camera_out']['web'],
+        app_config_camera_out_name=APP_config_ini['camera_out']['name'],
+        app_config_camera_out_rtsp=APP_config_ini['camera_out']['rtsp'],
+        app_config_camera_out_note=APP_config_ini['camera_in']['note'],
+        app_config_tencent_sdk_api_id=APP_config_ini['tencent_sdk']['api_id'],
+        app_config_tencent_sdk_api_key=APP_config_ini['tencent_sdk']['api_key'],
+        app_config_tencent_sdk_api_area=APP_config_ini['tencent_sdk']['api_area'],
+    )
+
+
+# 配置保存
+@app.route('/system/config/save', methods=['POST'])
+def system_config_save():
+    if not session.get('APP_system_user'):
+        return redirect(url_for('system_login'))
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
+    _app_config_system_admin_user = request.form.get('system_admin_user')
+    _app_config_system_admin_pass = request.form.get('system_admin_pass')
+    _app_config_camera_in_ip = request.form.get('camera_in_ip')
+    _app_config_camera_in_web = request.form.get('camera_in_web')
+    _app_config_camera_in_name = request.form.get('camera_in_name')
+    _app_config_camera_in_rtsp = request.form.get('camera_in_rtsp')
+    _app_config_camera_in_note = request.form.get('camera_in_note')
+    _app_config_camera_out_ip = request.form.get('camera_out_ip')
+    _app_config_camera_out_web = request.form.get('camera_out_web')
+    _app_config_camera_out_name = request.form.get('camera_out_name')
+    _app_config_camera_out_rtsp = request.form.get('camera_out_rtsp')
+    _app_config_camera_out_note = request.form.get('camera_out_note')
+    _app_config_tencent_sdk_api_id = request.form.get('tencent_sdk_api_id')
+    _app_config_tencent_sdk_api_key = request.form.get('tencent_sdk_api_key')
+    _app_config_tencent_sdk_api_area = request.form.get('tencent_sdk_api_area')
+    print(_app_config_system_admin_user, _app_config_camera_in_note, _app_config_camera_out_note)
+    if _app_config_system_admin_user == '' or _app_config_system_admin_pass == '':
+        print('账号密码不能为空')
+        flash(u'账号密码不能为空!', 'msg_error')  # 用flash()向下一个请求闪现一条信息
+    else:
+        APP_config_ini['camera_in']['ip'] = _app_config_camera_in_ip
+        APP_config_ini['camera_in']['web'] = _app_config_camera_in_web
+        APP_config_ini['camera_in']['name'] = _app_config_camera_in_name
+        APP_config_ini['camera_in']['rtsp'] = _app_config_camera_in_rtsp
+        APP_config_ini['camera_in']['note'] = _app_config_camera_in_note
+
+        APP_config_ini['camera_out']['ip'] = _app_config_camera_out_ip
+        APP_config_ini['camera_out']['web'] = _app_config_camera_out_web
+        APP_config_ini['camera_out']['name'] = _app_config_camera_out_name
+        APP_config_ini['camera_out']['rtsp'] = _app_config_camera_out_rtsp
+        APP_config_ini['camera_out']['note'] = _app_config_camera_out_note
+
+        APP_config_ini['tencent_sdk']['api_id'] = _app_config_tencent_sdk_api_id
+        APP_config_ini['tencent_sdk']['api_key'] = _app_config_tencent_sdk_api_key
+        APP_config_ini['tencent_sdk']['api_area'] = _app_config_tencent_sdk_api_area
+
+        APP_config_ini['system']['admin_user'] = _app_config_system_admin_user
+        APP_config_ini['system']['admin_pass'] = _app_config_system_admin_pass
+        APP_config_ini.write()
+        flash(u'修改成功!', 'msg_ok')  # 用flash()向下一个请求闪现一条信息
+    return redirect(url_for('system_config'))  # 重定向，跳转
+
+
+# 上传表单(web调试用，后面计划更改为ajax返回测试结果)
+@app.route('/system/upload/test/')
 def system_upload_img():
     return render_template('upload.html')
 
@@ -188,7 +266,7 @@ def system_upload_car_img():
 # api 摄像头web直播 in
 @app.route('/api/camera_live_in')
 def system_video_feed_in():
-    global APP_config_ini
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
     camera_url = APP_config_ini['camera_in']['rtsp']
     return Response(gen(VideoCamera(camera_url)), mimetype='multipart/x-mixed-replace; boundary=frame')
 
@@ -196,7 +274,7 @@ def system_video_feed_in():
 # api 摄像头web直播 out
 @app.route('/api/camera_live_out')
 def system_video_feed_out():
-    global APP_config_ini
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
     camera_url = APP_config_ini['camera_out']['rtsp']
     return Response(gen(VideoCamera(camera_url)), mimetype='multipart/x-mixed-replace; boundary=frame')
 
@@ -204,11 +282,14 @@ def system_video_feed_out():
 # api 摄像头web拍照 in
 @app.route('/api/camera_screen_in')
 def system_camera_screen_in():
-    global APP_config_ini
     _car = dict()
     _save_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S_%f')
     _save_path = os.path.join(APP_basedir, 'static', 'uploads', _save_time)  # 保存路径 d:\test\2020151413_303 ，不含后缀
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
     camera_url = APP_config_ini['camera_in']['rtsp']
+    if camera_url == '':
+        print('in 摄像头未配置')
+        return 'in 摄像头未配置'
     _save_file = VideoCamera(camera_url).get_screen(_save_path)
     print('拍照存储：', _save_file)
     # 腾讯api处理 开始 =============================================
@@ -226,11 +307,14 @@ def system_camera_screen_in():
 # api 摄像头web拍照 out
 @app.route('/api/camera_screen_out')
 def system_camera_screen_out():
-    global APP_config_ini
     _car = dict()
     _save_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S_%f')
     _save_path = os.path.join(APP_basedir, 'static', 'uploads', _save_time)  # 保存路径 d:\test\2020151413_303 ，不含后缀
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
     camera_url = APP_config_ini['camera_out']['rtsp']
+    if camera_url == '':
+        print('out 摄像头未配置')
+        return 'out 摄像头未配置'
     _save_file = VideoCamera(camera_url).get_screen(_save_path)
     print('拍照存储：', _save_file)
     # 腾讯api处理 开始 =============================================
@@ -247,7 +331,7 @@ def system_camera_screen_out():
 
 # 腾讯车牌识别API ，返回一个字典 {'code':1, 'data': '识别失败, 'error': 'OCR无法识别'}
 def Tencent_car_api(img_base64):
-    global APP_config_ini
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
     car = dict()
     try:
         cred = credential.Credential(APP_config_ini['tencent_sdk']['api_id'], APP_config_ini['tencent_sdk']['api_key'])
@@ -322,30 +406,28 @@ if __name__ == '__main__':
     else:
         print('--- 初始图片库 ', APP_uploads)
         os.makedirs(APP_uploads)
-
-    APP_config_ini = configparser.ConfigParser()  # ini 类实例化
     if not os.path.exists(APP_config_file):
         print('--- 初始配置文件 ', APP_config_file)
-        APP_config_ini.add_section('camera_in')
-        APP_config_ini.set('camera_in', 'ip', '192.168.1.101')
-        APP_config_ini.set('camera_in', 'web', 'http://192.168.1.101:8080')
-        APP_config_ini.set('camera_in', 'name', '进门摄像头')
-        APP_config_ini.set('camera_in', 'rtsp', '')
-        APP_config_ini.set('camera_in', 'note', '暂无备注')
-        APP_config_ini.add_section('camera_out')
-        APP_config_ini.set('camera_out', 'ip', '192.168.1.101')
-        APP_config_ini.set('camera_out', 'web', 'http://192.168.1.101:8080')
-        APP_config_ini.set('camera_out', 'name', '出门摄像头')
-        APP_config_ini.set('camera_out', 'rtsp', '')
-        APP_config_ini.set('camera_out', 'note', '暂无备注')
-        APP_config_ini.add_section('tencent_sdk')
-        APP_config_ini.set('tencent_sdk', 'api_id', '')
-        APP_config_ini.set('tencent_sdk', 'api_key', '')
-        APP_config_ini.set('tencent_sdk', 'api_area', '')
-        APP_config_ini.write(open(APP_config_file, 'a', encoding='utf-8'))
-
-    print('--- 读入配置文件 ', APP_config_file)
-    APP_config_ini.read(APP_config_file, encoding='utf-8')  # 读入ini文件
-
+        APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
+        APP_config_ini['camera_in'] = {}
+        APP_config_ini['camera_in']['ip'] = '192.168.1.101'
+        APP_config_ini['camera_in']['web'] = 'http://192.168.1.101:8080'
+        APP_config_ini['camera_in']['name'] = 'A1'
+        APP_config_ini['camera_in']['rtsp'] = ''
+        APP_config_ini['camera_in']['note'] = ''
+        APP_config_ini['camera_out'] = {}
+        APP_config_ini['camera_out']['ip'] = '192.168.1.102'
+        APP_config_ini['camera_out']['web'] = 'http://192.168.1.102:8080'
+        APP_config_ini['camera_out']['name'] = 'A2'
+        APP_config_ini['camera_out']['rtsp'] = ''
+        APP_config_ini['camera_out']['note'] = ''
+        APP_config_ini['tencent_sdk'] = {}
+        APP_config_ini['tencent_sdk']['api_id'] = ''
+        APP_config_ini['tencent_sdk']['api_key'] = ''
+        APP_config_ini['tencent_sdk']['api_area'] = ''
+        APP_config_ini['system'] = {}
+        APP_config_ini['system']['admin_user'] = 'admin'
+        APP_config_ini['system']['admin_pass'] = 'admin'
+        APP_config_ini.write()
     # flask run
     app.run(host='0.0.0.0', port=5000, debug=True)

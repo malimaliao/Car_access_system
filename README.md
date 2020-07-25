@@ -19,4 +19,5 @@
 ### 依赖库
 * tencentcloud-sdk-python 3.0.223
 * opencv-python 4.3.0.36
+* configobj 5.0.6
 
