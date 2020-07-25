@@ -13,6 +13,9 @@ class VideoCamera(object):
 
     def get_frame(self):
         success, image = self.cap.read()
+        if image is None:
+            print('debug：截获空图像')
+            return None
         ret, jpeg = cv2.imencode('.jpg', image)  # 从网络读取图像数据并压缩编码转换成图片格式
         return jpeg.tobytes()
 
