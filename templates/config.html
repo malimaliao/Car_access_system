@@ -48,7 +48,6 @@
                         <div class="panel-heading">
                             <div class="panel-heading-btn">
                                 <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-default" data-click="panel-expand"><i class="fa fa-expand"></i></a>
-                                <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-warning" data-click="panel-collapse"><i class="fa fa-minus"></i></a>
                             </div>
                             <h4 class="panel-title">系统管理</h4>
                         </div>
@@ -80,7 +79,7 @@
 						{% endwith %}
 
                         <div class="panel-body">
-                            <form action="/system/config/save" method="POST" enctype="multipart/form-data">
+                            <form action="/system/config/save" method="POST">
                                 <fieldset>
                                     <legend class="text-info">系统配置</legend>
                                     <div class="form-group">

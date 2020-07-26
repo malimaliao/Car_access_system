@@ -51,8 +51,19 @@ def init_db():
         db.commit()
 
 
+# 连接数据库
 def connect_db():
     return sqlite3.connect(APP_database)
+
+
+# 根据语句查询数量
+def db_query_sum(sql_text):
+    try:
+        cur = g.db.execute(sql_text)
+        data = cur.fetchall()
+        return len(data)
+    except sqlite3.Error as e:
+        return -1
 
 
 # 获取摄像头视频帧图像
@@ -114,6 +125,12 @@ def system_index():
 # /login/
 @app.route('/login/')
 def system_login():
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
+    _config_admin_user = APP_config_ini['system']['admin_user']
+    _config_admin_pass = APP_config_ini['system']['admin_pass']
+    if _config_admin_user == 'admin' and _config_admin_pass == 'admin':
+        flash('出于安全考虑，系统现在无法让您登录！'
+              '您必须先在系统文件夹下修改inc_config.ini文件中的默认账号密码后，再次刷新本网页才可以进行登录。')
     return render_template('login.html', APP_version=APP_version, APP_name=APP_name, APP_description=APP_description)
 
 
@@ -125,9 +142,6 @@ def system_login_check():
     _config_admin_pass = APP_config_ini['system']['admin_pass']
     if _config_admin_user == '' or _config_admin_pass == '':
         flash('不允许使用空账号密码登录！')
-        return redirect(url_for('system_login'))
-    if _config_admin_user == 'admin' and _config_admin_pass == 'admin':
-        flash('系统现在无法让您登录！因为安全考虑，您必须先在系统文件夹下修改inc_config.ini文件中的默认账号密码后，才可以进行登录')
         return redirect(url_for('system_login'))
     else:
         _login_user = request.form.get('login_user')
@@ -223,6 +237,200 @@ def system_config_save():
         APP_config_ini.write()
         flash(u'修改成功!', 'msg_ok')  # 用flash()向下一个请求闪现一条信息
     return redirect(url_for('system_config'))  # 重定向，跳转
+
+
+# 车辆登记列表
+@app.route('/car/list/')
+def system_car_list():
+    try:
+        cur = g.db.execute('SELECT * FROM car;')
+        data = cur.fetchall()
+        return render_template('car_list.html', data_list=data)
+    except sqlite3.Error as e:
+        flash(u'数据库出现异常，此功能暂时不可用！' + str(e), 'msg_error')
+        return render_template('car_list.html', data_list=[])
+
+
+# 车辆登记 列表
+@app.route('/car/add/')
+def system_car_add():
+    region_list = ['京', '津', '沪', '黑', '吉', '辽', '蒙', '晋', '陕', '甘', '青', '新', '宁', '冀', '鲁', '豫', '苏',
+                   '浙', '皖', '湘', '鄂', '赣', '川', '黔', '滇', '桂', '粤', '闽', '藏', '琼', '渝', '台', '港', '澳']
+    try:
+        cur = g.db.execute('SELECT * FROM class;')
+        data = cur.fetchall()
+        return render_template('car_add.html', region_list=region_list, data_list=data)
+    except sqlite3.Error as e:
+        flash(u'数据库出现异常，此功能暂时不可用！' + str(e), 'msg_error')
+        return render_template('car_add.html', region_list=region_list, data_list=[])
+
+
+# 车辆登记 保存
+@app.route('/car/add/save', methods=['POST'])
+def system_car_add_save():
+    if not session.get('APP_system_user'):
+        return redirect(url_for('system_login'))
+    _car_region = request.form.get('car_region')
+    _car_code = request.form.get('car_code')
+    _car_owner = request.form.get('car_owner')
+    _car_mobile = request.form.get('car_mobile')
+    _car_note = request.form.get('car_note')
+    _class_id = request.form.get('class_id')
+    if _car_region is None or _car_code is None or _car_owner is None or _car_mobile is None or _class_id is None:
+        flash(u'缺少必要参数，请检查必填项或必选项是否都正确填写或选择！', 'msg_error')
+        return redirect(url_for('system_car_add'))
+    if _car_region == '' or _car_code == '' or _car_owner == '' or _car_mobile == '' or _class_id == '':
+        flash(u'必要参数不能为空值！车牌号、车主、手机号码、车辆分类都是必须的', 'msg_warning')
+        return redirect(url_for('system_car_add'))
+    # 审查 查重
+    _car_number = _car_region + _car_code
+    if db_query_sum("SELECT car_number FROM car WHERE car_number = '" + _car_number + "'") > 0:
+        flash(u'该条目已存在，无需再次添加！重复的项为：' + _car_number, 'msg_warning')
+        return redirect(url_for('system_car_add'))
+    # 审查OK 开始写库
+    _post_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    _post_user = session.get('APP_system_user')
+    _post_ip = request.remote_addr
+    _post_data = [_car_number, _car_owner, _car_mobile, _car_note, _post_time, _post_user, _post_ip, _class_id]
+    try:
+        g.db.execute('INSERT INTO car (car_number, car_owner, car_mobile, car_note, submit_time, submit_user, submit_ip, class_id) values (?, ?, ?, ?, ?, ?, ?, ?)', _post_data)
+        g.db.commit()
+        flash(u'您成功添加了一条数据！', 'msg_ok')
+        return redirect(url_for('system_car_list'))
+    except sqlite3.Error as e:
+        flash(u'数据提交失败！' + str(e), 'msg_error')
+        return redirect(url_for('system_car_add'))
+
+
+#  根据传入的list字符查询车位区域列表
+def db_query_parking(parking_list_text):
+    parking_list = []
+    _parking_list = parking_list_text.split(",")
+    for _parking in _parking_list:
+        try:
+            cur = g.db.execute("SELECT * FROM parking WHERE parking_id = '" + _parking + "';")
+            park_list = cur.fetchall()
+            # print('db_query_parking()', park_list)
+            parking_list.append(park_list)
+        except sqlite3.Error as e:
+            print('db_query_parking()', '查询错误')
+    return parking_list
+
+
+app.add_template_global(db_query_parking, 'db_query_parking')  # flask 在jinja2模板引擎注册一个自定义函数
+
+
+# 车辆类型 列表
+@app.route('/class/list/')
+def system_class_list():
+    try:
+        cur = g.db.execute('SELECT * FROM class;')
+        data = cur.fetchall()
+        return render_template('class_list.html', data_list=data)
+    except sqlite3.Error as e:
+        flash(u'数据库出现异常，此功能暂时不可用！' + str(e), 'msg_error')
+        return render_template('class_list.html', data_list=[])
+
+
+# 车辆类型 新建
+@app.route('/class/add/')
+def system_class_add():
+    try:
+        cur = g.db.execute('SELECT * FROM parking;')
+        parking_list = cur.fetchall()
+        return render_template('class_add.html', parking_list=parking_list)
+    except sqlite3.Error as e:
+        flash(u'数据库出现异常，此功能暂时不可用！' + str(e), 'msg_error')
+        return render_template('class_add.html', parking_list=[])
+
+
+# 车辆类别 保存
+@app.route('/class/add/save', methods=['POST'])
+def system_class_add_save():
+    if not session.get('APP_system_user'):
+        return redirect(url_for('system_login'))
+    _class_name = request.form.get('car_type_name')
+    _class_note = request.form.get('car_type_note')
+    _class_parking_list = request.values.getlist("car_parking")
+    if _class_name is None or _class_note is None or _class_parking_list is None:
+        flash(u'缺少参数!', 'msg_error')
+        return redirect(url_for('system_class_add'))
+    if _class_name == '':
+        flash(u'必要参数不能为空值!', 'msg_error')
+        return redirect(url_for('system_class_add'))
+    if len(_class_parking_list) < 1:
+        flash(u'车位权限区域不能为空，您建立该类别应该至少指定一个停放车位区域权限', 'msg_error')
+        return redirect(url_for('system_class_add'))
+    if db_query_sum("SELECT class_name FROM class WHERE class_name = '" + _class_name + "'") > 0:
+        flash(u'该条目已存在，无需再次添加！', 'msg_warning')
+        return redirect(url_for('system_class_add'))
+    # 审查ok 开始写库
+    _post_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    _post_user = session.get('APP_system_user')
+    _post_ip = request.remote_addr
+    _post_parking = ','.join(_class_parking_list)
+    _post_data = [_class_name, _class_note, _post_time, _post_user, _post_ip, _post_parking]
+    try:
+        g.db.execute('INSERT INTO class (class_name, class_note, submit_time, submit_user, submit_ip, parking_list) values (?, ?, ?, ?, ?, ?)', _post_data)
+        g.db.commit()
+        flash(u'您成功添加了一条数据！', 'msg_ok')
+        return redirect(url_for('system_class_list'))
+    except sqlite3.Error as e:
+        flash(u'数据提交失败！' + str(e), 'msg_error')
+        return redirect(url_for('system_class_add'))
+
+
+# 车位 列表
+@app.route('/parking/list/')
+def system_parking_list():
+    try:
+        cur = g.db.execute('SELECT * FROM parking;')
+        data = cur.fetchall()
+        return render_template('parking_list.html', data_list=data)
+    except sqlite3.Error as e:
+        flash(u'数据库出现异常，此功能暂时不可用！' + str(e), 'msg_error')
+        return render_template('parking_list.html', data_list=[])
+
+
+# 车位 新建
+@app.route('/parking/add/')
+def system_parking_add():
+    return render_template('parking_add.html')
+
+
+# 车位 保存
+@app.route('/parking/add/save', methods=['POST'])
+def system_parking_add_save():
+    if not session.get('APP_system_user'):
+        return redirect(url_for('system_login'))
+    _parking_name = request.form.get('parking_name')
+    _parking_sum = request.form.get('parking_sum')
+    _parking_note = request.form.get('parking_note')
+    if _parking_name is None or _parking_sum is None or _parking_note is None:
+        flash(u'缺少参数!', 'msg_error')
+        return redirect(url_for('system_parking_add'))
+    if _parking_name == '' or _parking_sum == '':
+        flash(u'必要参数不能为空值!', 'msg_error')
+        return redirect(url_for('system_parking_add'))
+    if db_query_sum("SELECT parking_name FROM parking WHERE parking_name = '" + _parking_name + "'") > 0:
+        flash(u'该条目已存在，无需再次添加！', 'msg_warning')
+        return redirect(url_for('system_parking_add'))
+    # 审查ok 开始写库
+    _post_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    _post_user = session.get('APP_system_user')
+    _post_ip = request.remote_addr
+    _post_data = [_parking_name, _parking_sum, _parking_note, _post_time, _post_user, _post_ip]
+    try:
+        g.db.execute(
+            'insert into parking (parking_name, parking_sum, parking_note, submit_time, submit_user, submit_ip) values (?, ?, ?, ?, ?, ?)',
+            _post_data)
+        # 使用问号标记来构建 SQL 语句。否则，当使用格式化字符串构建 SQL 语句时， 应用容易遭受 SQL 注入。
+        g.db.commit()
+        flash(u'您成功添加了一条数据！', 'msg_ok')
+        return redirect(url_for('system_parking_list'))
+    except sqlite3.Error as e:
+        flash(u'数据提交失败！' + str(e), 'msg_error')
+        return redirect(url_for('system_parking_add'))
 
 
 # 上传表单(web调试用，后面计划更改为ajax返回测试结果)

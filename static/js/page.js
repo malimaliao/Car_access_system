@@ -3,29 +3,52 @@ function PagesClassActive() {
     //根据页面地址赋值active Start -----------------------------------
     var this_url = String(window.location.pathname);
     //link /
-    if(this_url == '/' || this_url == '/index.py'){
-        $("#sidebar_index").addClass('active');
+    if(this_url == '/'){
+        $("#sidebar_1").addClass('active');
+        $("#sidebar_car_index").addClass('active');
     }
-    //link /account/*
-    if(this_url.search('^/account/') != -1){
-        $("#sidebar_account").addClass('active');
+    //link
+    if(this_url.search('^/car/') != -1){
+        $("#sidebar_1").addClass('active');
+        //dir_list
+        //if(this_url.search('^/admin/user/') != -1 || this_url.search('^/admin/group/') != -1 || this_url.search('^/admin/roles/') != -1){
+        //$("#dir_user_group_roles").addClass('active');// /admin/user/* or /admin/group/* or /admin/roles/*
+        //}
+        if(this_url.search('^/car/list/') != -1 ){
+            $("#dir_car_list").addClass('active');
+        }
+        if(this_url.search('/car/log/') != -1 ){
+            $("#dir_car_log").addClass('active');
+        }
     }
-    //link /help/*
-    if(this_url.search('^/help/') != -1){
-        $("#sidebar_help").addClass('active');
+    //link
+    if(this_url.search('^/class|parking/') != -1){
+        $("#sidebar_2").addClass('active');
+        // dir link 1
+        if(this_url.search('^/class/list/') != -1 ){
+            $("#dir_class_list").addClass('active');
+        }
+        if(this_url.search('/class/add/') != -1 ){
+            $("#dir_class_list").addClass('active');
+        }
+        // dir link 2
+        if(this_url.search('^/parking/list/') != -1 ){
+            $("#dir_parking_list").addClass('active');
+        }
+        if(this_url.search('/parking/add/') != -1 ){
+            $("#dir_parking_list").addClass('active');
+        }
     }
-    //link /status/*
-    if(this_url.search('^/status/') != -1){
-        $("#sidebar_status").addClass('active');
-    }
-    //link /log/*
-    if(this_url.search('^/log/') != -1){
-        $("#sidebar_log").addClass('active');
-    }
-    //link /task/*
-    if(this_url.search('^/task/') != -1){
-        $("#sidebar_task").addClass('active');
-        $("#sidebar_task").css('display','block');
+    //link
+    if(this_url.search('^/system/') != -1){
+        $("#sidebar_3").addClass('active');
+        //dir_list
+        if(this_url.search('^/system/config/') != -1 ){
+            $("#dir_system_config").addClass('active');
+        }
+        if(this_url.search('/system/upload/') != -1 ){
+            $("#dir_system_upload").addClass('active');
+        }
     }
     //alert(this_url);
     //根据页面地址赋值active Stop -----------------------------------
