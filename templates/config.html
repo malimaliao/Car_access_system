@@ -96,9 +96,9 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="row row-space-10">
-                                            <div class="col-md-12">
+                                            <div class="col-md-6">
                                                 <label>使用识别服务（1，腾讯；2，百度）</label>
-                                                <input type="text" class="form-control" name="system_sdk" value="{{app_config_system_sdk}}" placeholder="" required>
+                                                <input type="number" class="form-control" name="system_sdk" value="{{app_config_system_sdk}}" placeholder="" required>
                                             </div>
                                         </div>
                                     </div>
@@ -174,9 +174,9 @@
                                     <hr>
                                     <legend class="text-primary">2，百度云API密钥</legend>
                                     <p>
-                                        1，使用此功能需要先通过百度云开通【<a href="https://console.cloud.tencent.com/ocr/plate" target="_blank">文字识别/汽车相关识别</a>】服务。<br/>
-                                        2，服务开通后，通过百度云账号设置中【<a href="https://console.cloud.tencent.com/cam/capi" target="_blank">访问密钥</a> 】获取<code>SecretId</code>和<code>SecretKey</code><br/>
-                                        3，关于百度云API的文字识别服务价格列表参照：https://cloud.tencent.com/document/product/866/17619
+                                        1，此功能基于百度云平台的【<a href="https://cloud.baidu.com/doc/OCR/s/ck3h7y191" target="_blank">文字识别/车牌识别</a>】服务。<br/>
+                                        2，首先通过登录百度云【<a href="https://console.bce.baidu.com/" target="_blank">创建应用</a> 】，然后获取<code>AppID</code>和<code>API Key</code><br/>
+                                        3，关于百度云API的文字识别服务价格列表参照：https://cloud.baidu.com/doc/OCR/s/Hk3h7xufm
                                     </p>
                                     <div class="form-group">
                                         <label>AppID</label>
