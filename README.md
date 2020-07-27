@@ -21,6 +21,7 @@ https://github.com/malimaliao/Car_access_system
 * tencentcloud-sdk-python 3.0.223
 * opencv-python 4.3.0.36
 * configobj 5.0.6
+* numpy 1.19.1
 
 ***
 ### 发现BUG
