@@ -94,6 +94,14 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <div class="row row-space-10">
+                                            <div class="col-md-12">
+                                                <label>使用识别服务（1，腾讯；2，百度）</label>
+                                                <input type="text" class="form-control" name="system_sdk" value="{{app_config_system_sdk}}" placeholder="" required>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <hr>
                                     <legend class="text-success">摄像头配置</legend>
                                     <div class="form-group">
@@ -145,9 +153,8 @@
                                         <textarea name="camera_out_note" class="form-control" placeholder="请简要描述，支持HTML代码" rows="3">{{app_config_camera_out_name}}</textarea>
                                     </div>
                                     <hr>
-                                    <legend class="text-primary">腾讯云车牌识别API密钥</legend>
+                                    <legend class="text-primary">1，腾讯云API密钥</legend>
                                     <p>
-                                        本系统的车牌拍照云识别服务基于腾讯云车牌识别SDK<br/>
                                         1，使用此功能需要先通过腾讯云开通【<a href="https://console.cloud.tencent.com/ocr/plate" target="_blank">文字识别/汽车相关识别</a>】服务。<br/>
                                         2，服务开通后，通过腾讯云账号设置中【<a href="https://console.cloud.tencent.com/cam/capi" target="_blank">访问密钥</a> 】获取<code>SecretId</code>和<code>SecretKey</code><br/>
                                         3，关于腾讯云API的文字识别服务价格列表参照：https://cloud.tencent.com/document/product/866/17619
@@ -163,6 +170,21 @@
                                     <div class="form-group">
                                         <label>Region（地区列表请<a href="https://cloud.tencent.com/document/product/866/36211" target="_blank">点击此处</a>了解）</label>
                                         <input type="text" name="tencent_sdk_api_area" value="{{app_config_tencent_sdk_api_area}}" class="form-control" placeholder="api-guangzhou">
+                                    </div>
+                                    <hr>
+                                    <legend class="text-primary">2，百度云API密钥</legend>
+                                    <p>
+                                        1，使用此功能需要先通过百度云开通【<a href="https://console.cloud.tencent.com/ocr/plate" target="_blank">文字识别/汽车相关识别</a>】服务。<br/>
+                                        2，服务开通后，通过百度云账号设置中【<a href="https://console.cloud.tencent.com/cam/capi" target="_blank">访问密钥</a> 】获取<code>SecretId</code>和<code>SecretKey</code><br/>
+                                        3，关于百度云API的文字识别服务价格列表参照：https://cloud.tencent.com/document/product/866/17619
+                                    </p>
+                                    <div class="form-group">
+                                        <label>AppID</label>
+                                        <input type="text" name="baidu_sdk_api_ak" value="{{app_config_baidu_sdk_api_ak}}" class="form-control" placeholder="">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>APIKey</label>
+                                        <input type="text" name="baidu_sdk_api_ck" value="{{app_config_baidu_sdk_api_ck}}" class="form-control" placeholder="">
                                     </div>
                                     <div class="form-group">
                                         <div class="col-md-8 col-md-offset-4">

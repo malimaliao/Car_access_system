@@ -20,7 +20,8 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.ocr.v20181119 import ocr_client, models
-
+# HTTP
+import requests
 # ini
 from configobj import ConfigObj
 
@@ -174,6 +175,7 @@ def system_config():
         'config.html',
         app_config_system_admin_user=APP_config_ini['system']['admin_user'],
         app_config_system_admin_pass=APP_config_ini['system']['admin_pass'],
+        app_config_system_sdk=APP_config_ini['system']['sdk'],
         app_config_camera_in_ip=APP_config_ini['camera_in']['ip'],
         app_config_camera_in_web=APP_config_ini['camera_in']['web'],
         app_config_camera_in_name=APP_config_ini['camera_in']['name'],
@@ -187,6 +189,8 @@ def system_config():
         app_config_tencent_sdk_api_id=APP_config_ini['tencent_sdk']['api_id'],
         app_config_tencent_sdk_api_key=APP_config_ini['tencent_sdk']['api_key'],
         app_config_tencent_sdk_api_area=APP_config_ini['tencent_sdk']['api_area'],
+        app_config_baidu_sdk_api_ak=APP_config_ini['baidu_sdk']['AppID'],
+        app_config_baidu_sdk_api_ck=APP_config_ini['baidu_sdk']['APIKey'],
     )
 
 
@@ -198,6 +202,7 @@ def system_config_save():
     APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
     _app_config_system_admin_user = request.form.get('system_admin_user')
     _app_config_system_admin_pass = request.form.get('system_admin_pass')
+    _app_config_system_sdk = request.form.get('system_sdk')
     _app_config_camera_in_ip = request.form.get('camera_in_ip')
     _app_config_camera_in_web = request.form.get('camera_in_web')
     _app_config_camera_in_name = request.form.get('camera_in_name')
@@ -211,6 +216,8 @@ def system_config_save():
     _app_config_tencent_sdk_api_id = request.form.get('tencent_sdk_api_id')
     _app_config_tencent_sdk_api_key = request.form.get('tencent_sdk_api_key')
     _app_config_tencent_sdk_api_area = request.form.get('tencent_sdk_api_area')
+    _app_config_baidu_sdk_ak = request.form.get('baidu_sdk_api_ak')
+    _app_config_baidu_sdk_ck = request.form.get('baidu_sdk_api_ck')
     print(_app_config_system_admin_user, _app_config_camera_in_note, _app_config_camera_out_note)
     if _app_config_system_admin_user == '' or _app_config_system_admin_pass == '':
         print('账号密码不能为空')
@@ -232,8 +239,12 @@ def system_config_save():
         APP_config_ini['tencent_sdk']['api_key'] = _app_config_tencent_sdk_api_key
         APP_config_ini['tencent_sdk']['api_area'] = _app_config_tencent_sdk_api_area
 
+        APP_config_ini['baidu_sdk']['AppID'] = _app_config_baidu_sdk_ak
+        APP_config_ini['baidu_sdk']['APIKey'] = _app_config_baidu_sdk_ck
+
         APP_config_ini['system']['admin_user'] = _app_config_system_admin_user
         APP_config_ini['system']['admin_pass'] = _app_config_system_admin_pass
+        APP_config_ini['system']['sdk'] = _app_config_system_sdk
         APP_config_ini.write()
         flash(u'修改成功!', 'msg_ok')  # 用flash()向下一个请求闪现一条信息
     return redirect(url_for('system_config'))  # 重定向，跳转
@@ -456,7 +467,11 @@ def system_upload_car_img():
         print('识别图片：' + _save_path)
         img_base64 = img_to_base64(_save_path)
         # print(img_base64)
-        _car = Tencent_car_api(img_base64)
+        APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
+        if APP_config_ini['system']['sdk'] == '1':
+            _car = Tencent_car_api(img_base64)
+        else:
+            _car = baidu_car_api(img_base64)
         # _car['data'] = {"Number": "渝AN7968", "Confidence": 99, "RequestId": "bc9f8509-1d4b-4990-9557-03b0f17e7eba"}
         # _car['code'] = 1（识别成功），0（识别失败）
         # 腾讯api处理 结束 =============================================
@@ -503,7 +518,11 @@ def system_camera_screen_in():
     # 腾讯api处理 开始 =============================================
     print('识别图片：', _save_file)
     img_base64 = img_to_base64(_save_file)
-    _car = Tencent_car_api(img_base64)
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
+    if APP_config_ini['system']['sdk'] == '1':
+        _car = Tencent_car_api(img_base64)
+    else:
+        _car = baidu_car_api(img_base64)
     # 腾讯api处理 结束 =============================================
     print('识别结果：', _car)
     if _car['code'] == 1:
@@ -528,7 +547,11 @@ def system_camera_screen_out():
     # 腾讯api处理 开始 =============================================
     print('识别图片：', _save_file)
     img_base64 = img_to_base64(_save_file)
-    _car = Tencent_car_api(img_base64)
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
+    if APP_config_ini['system']['sdk'] == '1':
+        _car = Tencent_car_api(img_base64)
+    else:
+        _car = baidu_car_api(img_base64)
     # 腾讯api处理 结束 =============================================
     print('识别结果：', _car)
     if _car['code'] == 1:
@@ -593,6 +616,68 @@ def Tencent_car_api(img_base64):
     return car
 
 
+# 百度SDK
+def baidu_car_api(img_base64):
+    APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
+    car = dict()
+    # 百度鉴权 START
+    try:
+        host = 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=' + APP_config_ini['baidu_sdk']['AppID'] + '&client_secret=' + APP_config_ini['baidu_sdk']['APIKey']
+        response = requests.get(host)
+        if response:
+            _sdk_json = response.json()
+            print('百度SDK：鉴权成功，' + _sdk_json['access_token'])
+            if 'access_token' in _sdk_json:
+                _sdk_token = _sdk_json['access_token']
+                params = {"image": img_base64}
+                request_url = "https://aip.baidubce.com/rest/2.0/ocr/v1/license_plate"
+                request_url = request_url + "?access_token=" + _sdk_token
+                headers = {'content-type': 'application/x-www-form-urlencoded'}
+                response = requests.post(request_url, data=params, headers=headers)
+                _bd_api_json = response.json()
+                if 'words_result' in _bd_api_json:
+                    print('百度SDK：识别成功，', _bd_api_json['words_result'])
+                    car['number'] = _bd_api_json['words_result']['number']
+                    car['confidence'] = 99  # 可信度，此处百度与腾讯不同，拆分进行计算，后续改进，此处固定
+                    car['requestId'] = _bd_api_json['log_id']
+                    car['code'] = 1
+                    car['data'] = '识别成功'
+                    car['error'] = ''
+                elif 'error_code' in _bd_api_json:
+                    # print('百度SDK：识别失败，' + _bd_api_json['error_msg'])
+                    car['code'] = 0
+                    car['data'] = '识别出错'
+                    car['error'] = '百度SDK：识别失败，' + _bd_api_json['error_msg']
+                else:
+                    # print('百度SDK：识别异常，', _bd_api_json)
+                    car['code'] = 0
+                    car['data'] = '识别出错'
+                    car['error'] = '百度SDK：识别异常' + str(_bd_api_json)
+            elif 'error' in _sdk_json:
+                # print('百度SDK：鉴权请求失败，服务不可用' + _sdk_json['error'] + ',' + _sdk_json['error_description'])
+                car['code'] = 0
+                car['data'] = '识别出错'
+                car['error'] = '百度SDK：鉴权请求失败，服务不可用' + _sdk_json['error'] + ',' + _sdk_json['error_description']
+            else:
+                # print('百度SDK：鉴权请求返回资源未知，服务不可用')
+                car['code'] = 0
+                car['data'] = '识别出错'
+                car['error'] = '百度SDK：鉴权请求返回资源未知，服务不可用'
+        else:
+            # print('百度SDK：鉴权请求返回资源为空，服务不可用')
+            car['code'] = 0
+            car['data'] = '识别出错'
+            car['error'] = '百度SDK：鉴权请求返回资源为空，服务不可用'
+    except Exception as error:
+        # print('百度SDK：鉴权请求访问失败，服务不可用', str(error))
+        car['code'] = 0
+        car['data'] = '识别出错'
+        car['error'] = '百度SDK：鉴权请求访问失败，服务不可用' + str(error)
+    # 汇聚结果
+    car['car_code_service'] = '1.0'
+    return car
+
+
 # 图片转换base64
 def img_to_base64(img_file):
     with open(img_file, "rb") as f:  # 转为二进制格式
@@ -633,9 +718,13 @@ if __name__ == '__main__':
         APP_config_ini['tencent_sdk']['api_id'] = ''
         APP_config_ini['tencent_sdk']['api_key'] = ''
         APP_config_ini['tencent_sdk']['api_area'] = ''
+        APP_config_ini['baidu_sdk'] = {}
+        APP_config_ini['baidu_sdk']['AppID'] = ''
+        APP_config_ini['baidu_sdk']['APIKey'] = ''
         APP_config_ini['system'] = {}
         APP_config_ini['system']['admin_user'] = 'admin'
         APP_config_ini['system']['admin_pass'] = 'admin'
+        APP_config_ini['system']['sdk'] = 1
         APP_config_ini.write()
     # flask run
     app.run(host='0.0.0.0', port=5000, debug=True)

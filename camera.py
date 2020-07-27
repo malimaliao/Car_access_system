@@ -16,10 +16,7 @@ class VideoCamera(object):
         ret, frame_image = self.cap.read()
         if ret is False:
             print('debug：截获空图像，输出无信号动作 >>>')
-            resp = open('none.jpg', 'rb')
-            image1 = np.asarray(bytearray(resp.read()), dtype="uint8")
-            ret, picture = cv2.imdecode(image1, cv2.IMREAD_COLOR)
-            return picture.tobytes()
+            frame_image = cv2.imread('none.jpg')
         ret, jpeg = cv2.imencode('.jpg', frame_image)  # 从网络读取图像数据并压缩编码转换成图片格式
         return jpeg.tobytes()
 
