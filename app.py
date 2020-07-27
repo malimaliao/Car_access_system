@@ -218,7 +218,7 @@ def system_config_save():
     _app_config_tencent_sdk_api_area = request.form.get('tencent_sdk_api_area')
     _app_config_baidu_sdk_ak = request.form.get('baidu_sdk_api_ak')
     _app_config_baidu_sdk_ck = request.form.get('baidu_sdk_api_ck')
-    print(_app_config_system_admin_user, _app_config_camera_in_note, _app_config_camera_out_note)
+    # print(_app_config_system_admin_user, _app_config_camera_in_note, _app_config_camera_out_note)
     if _app_config_system_admin_user == '' or _app_config_system_admin_pass == '':
         print('账号密码不能为空')
         flash(u'账号密码不能为空!', 'msg_error')  # 用flash()向下一个请求闪现一条信息
