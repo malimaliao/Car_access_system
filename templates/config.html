@@ -14,7 +14,7 @@
 	<!-- ================== END BASE CSS STYLE ================== -->
 
 	<!-- ================== BEGIN PAGE LEVEL STYLE ================== -->
-
+    <link href="{{url_for('static',filename='/plugins/parsley/src/parsley.css')}}" rel="stylesheet" id="theme" />
 	<!-- ================== END PAGE LEVEL STYLE ================== -->
 
 	<!-- ================== BEGIN BASE JS ================== -->
@@ -79,7 +79,7 @@
 						{% endwith %}
 
                         <div class="panel-body">
-                            <form action="/system/config/save" method="POST">
+                            <form action="/system/config/save" method="POST" data-parsley-validate="true">
                                 <fieldset>
                                     <legend class="text-info">系统配置</legend>
                                     <div class="form-group">
@@ -193,6 +193,8 @@
 	<!-- ================== END BASE JS ================== -->
 
 	<!-- ================== BEGIN PAGE LEVEL JS ================== -->
+    <script src="{{url_for('static',filename='plugins/parsley/dist/parsley.js')}}"></script>
+    <script src="{{url_for('static',filename='plugins/parsley/dist/i18n/zh_cn.js')}}"></script>
 	<script src="{{url_for('static',filename='js/apps.min.js')}}"></script>
 	<!-- ================== END PAGE LEVEL JS ================== -->
 

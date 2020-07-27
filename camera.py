@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 # -*- 人生苦短，Python当歌
 import cv2
+import numpy as np
 
 
 # 获取摄像头视频流，将图像流转换为图帧
@@ -12,11 +13,14 @@ class VideoCamera(object):
         self.cap.release()
 
     def get_frame(self):
-        success, image = self.cap.read()
-        if image is None:
-            print('debug：截获空图像')
-            return None
-        ret, jpeg = cv2.imencode('.jpg', image)  # 从网络读取图像数据并压缩编码转换成图片格式
+        ret, frame_image = self.cap.read()
+        if ret is False:
+            print('debug：截获空图像，输出无信号动作 >>>')
+            resp = open('none.jpg', 'rb')
+            image1 = np.asarray(bytearray(resp.read()), dtype="uint8")
+            ret, picture = cv2.imdecode(image1, cv2.IMREAD_COLOR)
+            return picture.tobytes()
+        ret, jpeg = cv2.imencode('.jpg', frame_image)  # 从网络读取图像数据并压缩编码转换成图片格式
         return jpeg.tobytes()
 
     def get_screen(self, save_path):
