@@ -22,6 +22,7 @@ https://github.com/malimaliao/Car_access_system
 * opencv-python 4.3.0.36
 * configobj 5.0.6
 * numpy 1.19.1
+* requests 2.24.0
 
 ***
 ### 发现BUG
