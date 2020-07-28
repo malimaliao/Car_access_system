@@ -68,9 +68,9 @@ def db_query_sum(sql_text):
 
 
 # 获取摄像头视频帧图像
-def gen(camera):
+def gen(camera, rtsp_url):
     while True:
-        frame = camera.get_frame()
+        frame = camera.get_frame(rtsp_url)
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
@@ -491,7 +491,7 @@ def system_upload_car_img():
 def system_video_feed_in():
     APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
     camera_url = APP_config_ini['camera_in']['rtsp']
-    return Response(gen(VideoCamera(camera_url)), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(gen(VideoCamera(camera_url), camera_url), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 # api 摄像头web直播 out
@@ -499,7 +499,7 @@ def system_video_feed_in():
 def system_video_feed_out():
     APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
     camera_url = APP_config_ini['camera_out']['rtsp']
-    return Response(gen(VideoCamera(camera_url)), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(gen(VideoCamera(camera_url), camera_url), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 # api 摄像头web拍照 in

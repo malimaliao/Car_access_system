@@ -7,16 +7,21 @@ import numpy as np
 # 获取摄像头视频流，将图像流转换为图帧
 class VideoCamera(object):
     def __init__(self, rtsp_url):
+        print('rtsp连接>> ' + rtsp_url)
         self.cap = cv2.VideoCapture(rtsp_url)
 
     def __del__(self):
+        print('rtsp断开>> ')
         self.cap.release()
 
-    def get_frame(self):
+    def get_frame(self, rtsp_url):
         ret, frame_image = self.cap.read()
         if ret is False:
-            print('debug：截获空图像，输出无信号动作 >>>')
-            frame_image = cv2.imread('none.jpg')
+            # print('debug：截获空图像，输出无信号动作 >>>')
+            # frame_image = cv2.imread('none.jpg')
+            # https: // blog.csdn.net / qq_33764934 / article / details / 103482121
+            print('debug：截获空图像，尝试重连 >>>')
+            self.cap = cv2.VideoCapture(rtsp_url) # 重新建立连接
         ret, jpeg = cv2.imencode('.jpg', frame_image)  # 从网络读取图像数据并压缩编码转换成图片格式
         return jpeg.tobytes()
 
