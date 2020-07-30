@@ -18,11 +18,12 @@ class VideoCamera(object):
         ret, frame_image = self.cap.read()
         if ret is False:
             # print('debug：截获空图像，输出无信号动作 >>>')
-            # frame_image = cv2.imread('none.jpg')
             # https: // blog.csdn.net / qq_33764934 / article / details / 103482121
             print('debug：截获空图像，尝试重连 >>>')
-            self.cap = cv2.VideoCapture(rtsp_url) # 重新建立连接
-        ret, jpeg = cv2.imencode('.jpg', frame_image)  # 从网络读取图像数据并压缩编码转换成图片格式
+            self.cap = cv2.VideoCapture(rtsp_url)  # 重新建立连接
+            jpeg = cv2.imread('none.jpg')
+        else:
+            ret, jpeg = cv2.imencode('.jpg', frame_image)  # 从网络读取图像数据并压缩编码转换成图片格式
         return jpeg.tobytes()
 
     def get_screen(self, save_path):
