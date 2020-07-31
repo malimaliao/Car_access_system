@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<head>
+	<meta charset="utf-8" />
+	<title>识别结果列表</title>
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+
+	<!-- ================== BEGIN BASE CSS STYLE ================== -->
+	{% include "inc_head_css.html" %}
+	<!-- ================== END BASE CSS STYLE ================== -->
+
+	<!-- ================== BEGIN PAGE LEVEL STYLE ================== -->
+  	<link href="{{url_for('static',filename='plugins/isotope/isotope.css')}}" rel="stylesheet" />
+  	<link href="{{url_for('static',filename='plugins/lightbox/css/lightbox.css')}}" rel="stylesheet" />
+	<!-- ================== END PAGE LEVEL STYLE ================== -->
+
+	<!-- ================== BEGIN BASE JS ================== -->
+	{% include "inc_head_js.html" %}
+	<!-- ================== END BASE JS ================== -->
+</head>
+<body>
+	<!-- begin #page-loader -->
+	<div id="page-loader" class="fade in"><span class="spinner"></span></div>
+	<!-- end #page-loader -->
+
+	<!-- begin #page-container -->
+	<div id="page-container" class="fade page-sidebar-fixed page-header-fixed">
+		<!-- begin #header -->
+		{% include "inc_header.html" %}
+		<!-- end #header -->
+
+		<!-- begin #sidebar -->
+		{% include "inc_sidebar.html" %}
+		<!-- end #sidebar -->
+
+		<!-- begin #content -->
+		<div id="content" class="content">
+			<!-- begin breadcrumb -->
+			<ol class="breadcrumb pull-right">
+				<li><a href="/">首页</a></li>
+				<li class="active">识别相册</li>
+			</ol>
+			<!-- end breadcrumb -->
+			<!-- begin page-header -->
+			<h1 class="page-header">识别相册 <small>查看保存的识别图片以及识别结果</small></h1>
+			<!-- end page-header -->
+
+            <div id="options" class="m-b-10">
+                <span class="gallery-option-set" id="filter" data-option-key="filter">
+                    <a href="#show-all" class="btn btn-default btn-xs active" data-option-value="*">
+                        全部
+                    </a>
+                    <a href="#gallery-group-1" class="btn btn-default btn-xs" data-option-value=".gallery-group-1">
+                        识别成功
+                    </a>
+                    <a href="#gallery-group-2" class="btn btn-default btn-xs" data-option-value=".gallery-group-2">
+                        识别失败
+                    </a>
+                </span>
+            </div>
+            <div id="gallery" class="gallery">
+                {% for gallery in gallery_list %}
+                <div class="image gallery-group-{% if gallery['code'] == '1' %}1{% else %}2{% endif %}" style="width: 25%">
+                    <div class="image-inner">
+                        <a href="/static/uploads/{{gallery['file']}}" data-lightbox="gallery-group-1">
+                            <img src="/static/uploads/{{gallery['file']}}" alt="" />
+                        </a>
+                        <p class="image-caption">
+                            {% if gallery['code'] == '1' %} 成功 {% else %} 失败 {% endif %}
+                        </p>
+                    </div>
+                    <div class="image-info">
+                        <h5 class="title">{{gallery['number']}}</h5>
+                        <div class="pull-right">
+                            <small>by</small>
+                            <a href="javascript:;">
+                                {% if gallery['code'] == '1' %} 腾讯API {% else %} 百度API {% endif %}
+                            </a>
+                        </div>
+                        <div class="rating">
+                            {{gallery['time']}}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+		</div>
+		<!-- end #content -->
+
+        <!-- begin theme-panel -->
+
+        <!-- end theme-panel -->
+
+		<!-- begin scroll to top btn -->
+		<a href="javascript:;" class="btn btn-icon btn-circle btn-success btn-scroll-to-top fade" data-click="scroll-top"><i class="fa fa-angle-up"></i></a>
+		<!-- end scroll to top btn -->
+	</div>
+	<!-- end page container -->
+
+	<!-- ================== BEGIN BASE JS ================== -->
+	{% include "inc_foot_base_js.html" %}
+	<!-- ================== END BASE JS ================== -->
+
+	<!-- ================== BEGIN PAGE LEVEL JS ================== -->
+	<script src="{{url_for('static',filename='plugins/isotope/jquery.isotope.min.js')}}"></script>
+  	<script src="{{url_for('static',filename='plugins/lightbox/js/lightbox.min.js')}}"></script>
+	<script src="{{url_for('static',filename='js/gallery.demo.min.js')}}"></script>
+
+	<script src="{{url_for('static',filename='js/apps.min.js')}}"></script>
+	<!-- ================== END PAGE LEVEL JS ================== -->
+
+	<script>
+		$(document).ready(function() {
+			App.init();
+			PagesClassActive(); //page.js 根据页面地址激活对应class active
+			showTime();//显示系统实际showTime()函数
+			Gallery.init();
+		});
+	</script>
+</body>
+</html>

@@ -116,7 +116,7 @@
                                         <td>{{list[5]}}</td>
                                         {# {{ db_query_parking('1,2,3') 是自定义的函数，传入车位ID可返回车位详情 }} #}
                                         <td>
-                                            {% for parking in db_query_parking('1,2,3') %}
+                                            {% for parking in db_query_parking(list[6]) %}
                                                 {% for park in parking %}
                                                     <code>{{ park[1] }}</code>
                                                 {% endfor %}

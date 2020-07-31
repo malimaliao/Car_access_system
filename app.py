@@ -24,6 +24,7 @@ from tencentcloud.ocr.v20181119 import ocr_client, models
 import requests
 # ini
 from configobj import ConfigObj
+import re
 
 app = Flask(__name__)
 
@@ -450,6 +451,22 @@ def system_upload_img():
     return render_template('upload.html')
 
 
+# 上传图片结果清单（调取本地上传的图片库）
+@app.route('/system/gallery/')
+def system_gallery():
+    gallery = []
+    for picture_file in os.listdir(APP_uploads):
+        # print(file)
+        filename_re = re.compile(r'(\d+)_\d+_(\d)_(\d)_(.+?)\.')
+        items = filename_re.findall(picture_file)
+        if len(items) > 0:
+            for item in items:
+                # print(item[0], item[1], item[2], item[3])
+                gallery.append({'file': picture_file, 'time': item[0], 'type': item[1], 'code': item[2], 'number': item[3]})
+    print(gallery)
+    return render_template('list_gallery.html', gallery_list=gallery)
+
+
 # api ：车牌号图片上传服务器+ 腾讯识别（返回car）
 @app.route('/api/v1/upload', methods=['GET', 'POST'])
 def system_upload_car_img():
@@ -470,8 +487,16 @@ def system_upload_car_img():
         APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
         if APP_config_ini['system']['sdk'] == '1':
             _car = Tencent_car_api(img_base64)
+            if _car['code'] == 1:
+                os.rename(_save_path, _save_path.replace(_save_time, _save_time + '_1_1_' + _car['number']))
+            else:
+                os.rename(_save_path, _save_path.replace(_save_time, _save_time + '_1_0_0000000'))
         else:
             _car = baidu_car_api(img_base64)
+            if _car['code'] == 1:
+                os.rename(_save_path, _save_path.replace(_save_time, _save_time + '_2_1_' + _car['number']))
+            else:
+                os.rename(_save_path, _save_path.replace(_save_time, _save_time + '_2_0_0000000'))
         # _car['data'] = {"Number": "渝AN7968", "Confidence": 99, "RequestId": "bc9f8509-1d4b-4990-9557-03b0f17e7eba"}
         # _car['code'] = 1（识别成功），0（识别失败）
         # 腾讯api处理 结束 =============================================
@@ -515,19 +540,24 @@ def system_camera_screen_in():
         return 'in 摄像头未配置'
     _save_file = VideoCamera(camera_url).get_screen(_save_path)
     print('拍照存储：', _save_file)
-    # 腾讯api处理 开始 =============================================
+    # api处理 开始 =============================================
     print('识别图片：', _save_file)
     img_base64 = img_to_base64(_save_file)
     APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
     if APP_config_ini['system']['sdk'] == '1':
         _car = Tencent_car_api(img_base64)
+        if _car['code'] == 1:
+            os.rename(_save_file, _save_file.replace(_save_time, _save_time + '_1_1_' + _car['number']))
+        else:
+            os.rename(_save_file, _save_file.replace(_save_time, _save_time + '_1_0_0000000'))
     else:
         _car = baidu_car_api(img_base64)
-    # 腾讯api处理 结束 =============================================
+        if _car['code'] == 2:
+            os.rename(_save_file, _save_file.replace(_save_time, _save_time + '_2_1_' + _car['number']))
+        else:
+            os.rename(_save_file, _save_file.replace(_save_time, _save_time + '_2_0_0000000'))
+    # api处理 结束 =============================================
     print('识别结果：', _car)
-    if _car['code'] == 1:
-        #  D:\MyPython\test\QQ_bar\static\uploads\20200723174136_554780.jpg
-        os.rename(_save_file, _save_file.replace(_save_time, _save_time + '_' + _car['number']))
     return _car
 
 
@@ -550,13 +580,18 @@ def system_camera_screen_out():
     APP_config_ini = ConfigObj(APP_config_file, encoding='UTF8')
     if APP_config_ini['system']['sdk'] == '1':
         _car = Tencent_car_api(img_base64)
+        if _car['code'] == 1:
+            os.rename(_save_file, _save_file.replace(_save_time, _save_time + '_1_1_' + _car['number']))
+        else:
+            os.rename(_save_file, _save_file.replace(_save_time, _save_time + '_1_0_0000000'))
     else:
         _car = baidu_car_api(img_base64)
+        if _car['code'] == 1:
+            os.rename(_save_file, _save_file.replace(_save_time, _save_time + '_2_1_' + _car['number']))
+        else:
+            os.rename(_save_file, _save_file.replace(_save_time, _save_time + '_2_0_0000000'))
     # 腾讯api处理 结束 =============================================
     print('识别结果：', _car)
-    if _car['code'] == 1:
-        #  D:\MyPython\test\QQ_bar\static\uploads\20200723174136_554780.jpg
-        os.rename(_save_file, _save_file.replace(_save_time, _save_time + '_' + _car['number']))
     return _car
 
 

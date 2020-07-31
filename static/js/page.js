@@ -49,6 +49,9 @@ function PagesClassActive() {
         if(this_url.search('/system/upload/') != -1 ){
             $("#dir_system_upload").addClass('active');
         }
+        if(this_url.search('/system/gallery/') != -1 ){
+            $("#dir_system_gallery").addClass('active');
+        }
     }
     //alert(this_url);
     //根据页面地址赋值active Stop -----------------------------------
