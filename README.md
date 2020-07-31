@@ -2,7 +2,7 @@
 https://github.com/malimaliao/Car_access_system
 
 
-一个python学习测试作品，使用腾讯云车牌识别系统，并基于flask构建的车辆出入登记小软件。
+一个python学习测试作品，基于腾讯云+百度云API车牌识别系统，并采用flask构建的车辆出入登记。
 
 
 ***
